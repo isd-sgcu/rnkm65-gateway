@@ -541,6 +541,7 @@
                 "nickname",
                 "phone",
                 "student_id",
+                "title",
                 "year"
             ],
             "properties": {
@@ -586,7 +587,7 @@
                 "student_id": {
                     "type": "string"
                 },
-                "vaccine_certificate_url": {
+                "title": {
                     "type": "string"
                 },
                 "year": {
@@ -664,7 +665,7 @@
                 "studentID": {
                     "type": "string"
                 },
-                "vaccineCertificateUrl": {
+                "title": {
                     "type": "string"
                 },
                 "year": {

@@ -44,7 +44,7 @@ definitions:
         type: string
       student_id:
         type: string
-      vaccine_certificate_url:
+      title:
         type: string
       year:
         type: string
@@ -56,6 +56,7 @@ definitions:
     - nickname
     - phone
     - student_id
+    - title
     - year
     type: object
   dto.VerifyTicket:
@@ -104,7 +105,7 @@ definitions:
         type: string
       studentID:
         type: string
-      vaccineCertificateUrl:
+      title:
         type: string
       year:
         type: string

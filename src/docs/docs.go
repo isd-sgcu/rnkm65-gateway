@@ -546,6 +546,7 @@ const docTemplate = `{
                 "nickname",
                 "phone",
                 "student_id",
+                "title",
                 "year"
             ],
             "properties": {
@@ -591,7 +592,7 @@ const docTemplate = `{
                 "student_id": {
                     "type": "string"
                 },
-                "vaccine_certificate_url": {
+                "title": {
                     "type": "string"
                 },
                 "year": {
@@ -669,7 +670,7 @@ const docTemplate = `{
                 "studentID": {
                     "type": "string"
                 },
-                "vaccineCertificateUrl": {
+                "title": {
                     "type": "string"
                 },
                 "year": {
