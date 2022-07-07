@@ -85,6 +85,7 @@ func (s *Service) Create(in *dto.UserDto) (result *proto.User, err *dto.Response
 		AllergyMedicine: in.AllergyMedicine,
 		Disease:         in.Disease,
 		ImageUrl:        in.ImageUrl,
+		CanSelectBaan:   in.CanSelectBaan,
 	}
 
 	res, errRes := s.client.Create(ctx, &proto.CreateUserRequest{User: usrDto})
@@ -124,6 +125,7 @@ func (s *Service) Update(id string, in *dto.UserDto) (result *proto.User, err *d
 		AllergyMedicine: in.AllergyMedicine,
 		Disease:         in.Disease,
 		ImageUrl:        in.ImageUrl,
+		CanSelectBaan:   in.CanSelectBaan,
 	}
 
 	res, errRes := s.client.Update(ctx, &proto.UpdateUserRequest{User: usrDto})
@@ -187,6 +189,7 @@ func (s *Service) CreateOrUpdate(in *dto.UserDto) (result *proto.User, err *dto.
 		AllergyMedicine: in.AllergyMedicine,
 		Disease:         in.Disease,
 		ImageUrl:        in.ImageUrl,
+		CanSelectBaan:   in.CanSelectBaan,
 	}
 
 	res, errRes := s.client.CreateOrUpdate(ctx, &proto.CreateOrUpdateUserRequest{User: usrDto})

@@ -29,6 +29,7 @@ message User{
   string allergyMedicine = 14;
   string disease = 15;
   string imageUrl = 16;
+  bool canSelectBaan = 17;
 }
 
 // FindOne

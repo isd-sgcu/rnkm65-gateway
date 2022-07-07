@@ -44,6 +44,7 @@ func (t *UserServiceTest) SetupTest() {
 		AllergyMedicine: faker.Word(),
 		Disease:         faker.Word(),
 		ImageUrl:        faker.URL(),
+		CanSelectBaan:   true,
 	}
 
 	t.UserReq = &proto.User{
@@ -58,6 +59,7 @@ func (t *UserServiceTest) SetupTest() {
 		AllergyMedicine: t.User.AllergyMedicine,
 		Disease:         t.User.Disease,
 		ImageUrl:        t.User.ImageUrl,
+		CanSelectBaan:   t.User.CanSelectBaan,
 	}
 
 	t.UserDto = &dto.UserDto{
@@ -73,6 +75,7 @@ func (t *UserServiceTest) SetupTest() {
 		AllergyMedicine: t.User.AllergyMedicine,
 		Disease:         t.User.Disease,
 		ImageUrl:        t.User.ImageUrl,
+		CanSelectBaan:   t.User.CanSelectBaan,
 	}
 
 	t.ServiceDownErr = &dto.ResponseErr{
