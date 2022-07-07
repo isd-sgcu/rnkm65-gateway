@@ -6,9 +6,6 @@ type UserDto struct {
 	Firstname       string `json:"firstname" validate:"required"`
 	Lastname        string `json:"lastname" validate:"required"`
 	Nickname        string `json:"nickname" validate:"required"`
-	StudentID       string `json:"student_id" validate:"required"`
-	Faculty         string `json:"faculty" validate:"required"`
-	Year            string `json:"year" validate:"required"`
 	Phone           string `json:"phone" validate:"required"`
 	LineID          string `json:"line_id" validate:"required"`
 	Email           string `json:"email" validate:"email"`

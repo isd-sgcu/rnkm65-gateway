@@ -50,9 +50,6 @@ func (t *UserServiceTest) SetupTest() {
 		Firstname:       t.User.Firstname,
 		Lastname:        t.User.Lastname,
 		Nickname:        t.User.Nickname,
-		StudentID:       t.User.StudentID,
-		Faculty:         t.User.Faculty,
-		Year:            t.User.Year,
 		Phone:           t.User.Phone,
 		LineID:          t.User.LineID,
 		Email:           t.User.Email,
@@ -68,9 +65,6 @@ func (t *UserServiceTest) SetupTest() {
 		Firstname:       t.User.Firstname,
 		Lastname:        t.User.Lastname,
 		Nickname:        t.User.Nickname,
-		StudentID:       t.User.StudentID,
-		Faculty:         t.User.Faculty,
-		Year:            t.User.Year,
 		Phone:           t.User.Phone,
 		LineID:          t.User.LineID,
 		Email:           t.User.Email,
@@ -165,8 +159,10 @@ func (t *UserServiceTest) TestCreateGrpcErr() {
 func (t *UserServiceTest) TestUpdateSuccess() {
 	want := t.User
 
+	t.UserReq.Id = t.User.Id
+
 	c := &user.ClientMock{}
-	c.On("Update", t.User).Return(&proto.UpdateUserResponse{User: want}, nil)
+	c.On("Update", t.UserReq).Return(&proto.UpdateUserResponse{User: want}, nil)
 
 	srv := NewService(c)
 
@@ -179,8 +175,10 @@ func (t *UserServiceTest) TestUpdateSuccess() {
 func (t *UserServiceTest) TestUpdateNotFound() {
 	want := t.NotFoundErr
 
+	t.UserReq.Id = t.User.Id
+
 	c := &user.ClientMock{}
-	c.On("Update", t.User).Return(nil, status.Error(codes.NotFound, "User not found"))
+	c.On("Update", t.UserReq).Return(nil, status.Error(codes.NotFound, "User not found"))
 
 	srv := NewService(c)
 
@@ -193,8 +191,10 @@ func (t *UserServiceTest) TestUpdateNotFound() {
 func (t *UserServiceTest) TestUpdateGrpcErr() {
 	want := t.ServiceDownErr
 
+	t.UserReq.Id = t.User.Id
+
 	c := &user.ClientMock{}
-	c.On("Update", t.User).Return(nil, errors.New("Service is down"))
+	c.On("Update", t.UserReq).Return(nil, errors.New("Service is down"))
 
 	srv := NewService(c)
 
@@ -207,8 +207,10 @@ func (t *UserServiceTest) TestUpdateGrpcErr() {
 func (t *UserServiceTest) TestCreateOrUpdateSuccess() {
 	want := t.User
 
+	t.UserReq.Id = t.User.Id
+
 	c := &user.ClientMock{}
-	c.On("CreateOrUpdate", &proto.CreateOrUpdateUserRequest{User: t.User}).Return(&proto.CreateOrUpdateUserResponse{User: t.User}, nil)
+	c.On("CreateOrUpdate", &proto.CreateOrUpdateUserRequest{User: t.UserReq}).Return(&proto.CreateOrUpdateUserResponse{User: t.User}, nil)
 
 	srv := NewService(c)
 
@@ -221,8 +223,10 @@ func (t *UserServiceTest) TestCreateOrUpdateSuccess() {
 func (t *UserServiceTest) TestCreateOrUpdateGrpcErr() {
 	want := t.ServiceDownErr
 
+	t.UserReq.Id = t.User.Id
+
 	c := &user.ClientMock{}
-	c.On("CreateOrUpdate", &proto.CreateOrUpdateUserRequest{User: t.User}).Return(nil, errors.New("Service is down"))
+	c.On("CreateOrUpdate", &proto.CreateOrUpdateUserRequest{User: t.UserReq}).Return(nil, errors.New("Service is down"))
 
 	srv := NewService(c)
 
