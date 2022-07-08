@@ -1,4 +1,12 @@
 definitions:
+  dto.BadReqErrResponse:
+    properties:
+      failed_field:
+        type: string
+      message:
+        type: string
+      value: {}
+    type: object
   dto.RedeemNewToken:
     properties:
       refresh_token:
@@ -6,12 +14,67 @@ definitions:
     required:
     - refresh_token
     type: object
-  dto.ResponseErr:
+  dto.ResponseBadRequestErr:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.BadReqErrResponse'
+        type: array
+      message:
+        example: Invalid request body
+        type: string
+      status_code:
+        example: 400
+        type: integer
+    type: object
+  dto.ResponseForbiddenErr:
     properties:
       data: {}
       message:
+        example: Insufficiency permission
         type: string
       status_code:
+        example: 403
+        type: integer
+    type: object
+  dto.ResponseInternalErr:
+    properties:
+      data: {}
+      message:
+        example: Internal service error
+        type: string
+      status_code:
+        example: 500
+        type: integer
+    type: object
+  dto.ResponseNotfoundErr:
+    properties:
+      data: {}
+      message:
+        example: Not found
+        type: string
+      status_code:
+        example: 404
+        type: integer
+    type: object
+  dto.ResponseServiceDownErr:
+    properties:
+      data: {}
+      message:
+        example: Service is down
+        type: string
+      status_code:
+        example: 503
+        type: integer
+    type: object
+  dto.ResponseUnauthorizedErr:
+    properties:
+      data: {}
+      message:
+        example: Invalid token
+        type: string
+      status_code:
+        example: 401
         type: integer
     type: object
   dto.UserDto:
@@ -151,11 +214,11 @@ paths:
         "401":
           description: Invalid token
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "503":
           description: Service is down
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Check user status and user info
@@ -183,19 +246,19 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Invalid refresh token
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "500":
           description: Internal service error
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseInternalErr'
         "503":
           description: Service is down
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       summary: Redeem new token
       tags:
       - auth
@@ -221,11 +284,11 @@ paths:
         "500":
           description: Internal service error
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseInternalErr'
         "503":
           description: Service is down
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Verify ticket and get credential
@@ -253,23 +316,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseForbiddenErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Create new user
@@ -296,15 +359,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Create new user if it doesn't exist and Update the user data if exists
@@ -331,23 +394,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseForbiddenErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Delete the user
@@ -373,19 +436,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       summary: Get the user data by id
       tags:
       - user
@@ -415,23 +478,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseForbiddenErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
       summary: Update the existing user

@@ -45,8 +45,8 @@ func NewHandler(service IService, usrService IUserService, validate *validate.Dt
 // @Accept json
 // @Produce json
 // @Success 200 {object} proto.Credential
-// @Failure 500 {object} dto.ResponseErr "Internal service error"
-// @Failure 503 {object} dto.ResponseErr "Service is down"
+// @Failure 500 {object} dto.ResponseInternalErr "Internal service error"
+// @Failure 503 {object} dto.ResponseServiceDownErr "Service is down"
 // @Security     AuthToken
 // @Router /auth/verify [post]
 func (h *Handler) VerifyTicket(c IContext) {
@@ -78,8 +78,8 @@ func (h *Handler) VerifyTicket(c IContext) {
 // @Accept json
 // @Produce json
 // @Success 201 {object} proto.User
-// @Failure 401 {object} dto.ResponseErr "Invalid token"
-// @Failure 503 {object} dto.ResponseErr "Service is down"
+// @Failure 401 {object} dto.ResponseUnauthorizedErr "Invalid token"
+// @Failure 503 {object} dto.ResponseServiceDownErr "Service is down"
 // @Security     AuthToken
 // @Router /auth/me [get]
 func (h *Handler) Validate(c IContext) {
@@ -110,10 +110,10 @@ func (h *Handler) Validate(c IContext) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} proto.Credential
-// @Failure 400 {object} dto.ResponseErr "Invalid request body"
-// @Failure 401 {object} dto.ResponseErr "Invalid refresh token"
-// @Failure 500 {object} dto.ResponseErr "Internal service error"
-// @Failure 503 {object} dto.ResponseErr "Service is down"
+// @Failure 400 {object} dto.ResponseBadRequestErr "Invalid request body"
+// @Failure 401 {object} dto.ResponseUnauthorizedErr "Invalid refresh token"
+// @Failure 500 {object} dto.ResponseInternalErr "Internal service error"
+// @Failure 503 {object} dto.ResponseServiceDownErr "Service is down"
 // @Router /auth/refreshToken [post]
 func (h *Handler) RefreshToken(c IContext) {
 	refreshToken := dto.RedeemNewToken{}
