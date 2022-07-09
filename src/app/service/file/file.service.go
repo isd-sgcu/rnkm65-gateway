@@ -33,6 +33,11 @@ func (s *Service) UploadImage(file *dto.DecomposedFile) (string, *dto.ResponseEr
 		if ok {
 			switch st.Code() {
 			case codes.Unavailable:
+				log.Error().
+					Err(err).
+					Str("service", "file").
+					Str("module", "upload image").
+					Msg("Cannot connect to google cloud storage")
 				return "", &dto.ResponseErr{
 					StatusCode: http.StatusGatewayTimeout,
 					Message:    "Connection timeout",
