@@ -39,7 +39,7 @@ func (s *Service) VerifyTicket(ticket string) (*proto.Credential, *dto.ResponseE
 			case codes.Unauthenticated:
 				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusUnauthorized,
-					Message:    "Unauthorized",
+					Message:    "Invalid ticket",
 					Data:       nil,
 				}
 
