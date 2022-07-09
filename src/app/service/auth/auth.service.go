@@ -36,6 +36,12 @@ func (s *Service) VerifyTicket(ticket string) (*proto.Credential, *dto.ResponseE
 					Message:    "Invalid study year",
 					Data:       nil,
 				}
+			case codes.Unauthenticated:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusUnauthorized,
+					Message:    "Unauthorized",
+					Data:       nil,
+				}
 
 			default:
 				log.Error().
