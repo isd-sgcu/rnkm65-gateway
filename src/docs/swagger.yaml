@@ -7,6 +7,26 @@ definitions:
         type: string
       value: {}
     type: object
+  dto.Credential:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3BiZX...
+        type: string
+      expires_in:
+        example: 3600
+        type: integer
+      refresh_token:
+        example: e7e84d54-7518-4...
+        type: string
+    type: object
+  dto.FileResponse:
+    properties:
+      failed_field:
+        type: string
+      message:
+        type: string
+      value: {}
+    type: object
   dto.RedeemNewToken:
     properties:
       refresh_token:
@@ -35,6 +55,16 @@ definitions:
         type: string
       status_code:
         example: 403
+        type: integer
+    type: object
+  dto.ResponseGatewayTimeoutErr:
+    properties:
+      data: {}
+      message:
+        example: Connection timeout
+        type: string
+      status_code:
+        example: 504
         type: integer
     type: object
   dto.ResponseInternalErr:
@@ -128,15 +158,6 @@ definitions:
         type: string
     required:
     - ticket
-    type: object
-  proto.Credential:
-    properties:
-      accessToken:
-        type: string
-      expiresIn:
-        type: integer
-      refreshToken:
-        type: string
     type: object
   proto.User:
     properties:
@@ -242,7 +263,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/proto.Credential'
+            $ref: '#/definitions/dto.Credential'
         "400":
           description: Invalid request body
           schema:
@@ -280,7 +301,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/proto.Credential'
+            $ref: '#/definitions/dto.Credential'
         "500":
           description: Internal service error
           schema:
@@ -309,19 +330,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
         "504":
           description: Gateway Timeout
           schema:
-            $ref: '#/definitions/dto.ResponseErr'
+            $ref: '#/definitions/dto.ResponseGatewayTimeoutErr'
       security:
       - AuthToken: []
       summary: Upload the image

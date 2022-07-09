@@ -14,6 +14,12 @@ type BadReqErrResponse struct {
 
 // For docs
 
+type Credential struct {
+	AccessToken  string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3BiZX..."`
+	RefreshToken string `json:"refresh_token" example:"e7e84d54-7518-4..."`
+	ExpiresIn    int    `json:"expires_in" example:"3600"`
+}
+
 type ResponseBadRequestErr struct {
 	StatusCode int                 `json:"status_code" example:"400"`
 	Message    string              `json:"message" example:"Invalid request body"`
@@ -47,5 +53,11 @@ type ResponseInternalErr struct {
 type ResponseServiceDownErr struct {
 	StatusCode int         `json:"status_code" example:"503"`
 	Message    string      `json:"message" example:"Service is down"`
+	Data       interface{} `json:"data"`
+}
+
+type ResponseGatewayTimeoutErr struct {
+	StatusCode int         `json:"status_code" example:"504"`
+	Message    string      `json:"message" example:"Connection timeout"`
 	Data       interface{} `json:"data"`
 }

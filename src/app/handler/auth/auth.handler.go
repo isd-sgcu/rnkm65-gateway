@@ -44,7 +44,7 @@ func NewHandler(service IService, usrService IUserService, validate *validate.Dt
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} proto.Credential
+// @Success 200 {object} dto.Credential
 // @Failure 500 {object} dto.ResponseInternalErr "Internal service error"
 // @Failure 503 {object} dto.ResponseServiceDownErr "Service is down"
 // @Security     AuthToken
@@ -109,7 +109,7 @@ func (h *Handler) Validate(c IContext) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} proto.Credential
+// @Success 200 {object} dto.Credential
 // @Failure 400 {object} dto.ResponseBadRequestErr "Invalid request body"
 // @Failure 401 {object} dto.ResponseUnauthorizedErr "Invalid refresh token"
 // @Failure 500 {object} dto.ResponseInternalErr "Internal service error"

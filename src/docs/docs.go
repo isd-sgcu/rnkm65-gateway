@@ -111,7 +111,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/proto.Credential"
+                            "$ref": "#/definitions/dto.Credential"
                         }
                     },
                     "400": {
@@ -174,7 +174,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/proto.Credential"
+                            "$ref": "#/definitions/dto.Credential"
                         }
                     },
                     "500": {
@@ -220,25 +220,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/dto.ResponseErr"
+                            "$ref": "#/definitions/dto.ResponseBadRequestErr"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/dto.ResponseErr"
+                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/dto.ResponseErr"
+                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
                         }
                     },
                     "504": {
                         "description": "Gateway Timeout",
                         "schema": {
-                            "$ref": "#/definitions/dto.ResponseErr"
+                            "$ref": "#/definitions/dto.ResponseGatewayTimeoutErr"
                         }
                     }
                 }
@@ -577,6 +577,35 @@ const docTemplate = `{
                 "value": {}
             }
         },
+        "dto.Credential": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3BiZX..."
+                },
+                "expires_in": {
+                    "type": "integer",
+                    "example": 3600
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "e7e84d54-7518-4..."
+                }
+            }
+        },
+        "dto.FileResponse": {
+            "type": "object",
+            "properties": {
+                "failed_field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
         "dto.RedeemNewToken": {
             "type": "object",
             "required": [
@@ -618,6 +647,20 @@ const docTemplate = `{
                 "status_code": {
                     "type": "integer",
                     "example": 403
+                }
+            }
+        },
+        "dto.ResponseGatewayTimeoutErr": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "Connection timeout"
+                },
+                "status_code": {
+                    "type": "integer",
+                    "example": 504
                 }
             }
         },
@@ -748,20 +791,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "ticket": {
-                    "type": "string"
-                }
-            }
-        },
-        "proto.Credential": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "expiresIn": {
-                    "type": "integer"
-                },
-                "refreshToken": {
                     "type": "string"
                 }
             }
