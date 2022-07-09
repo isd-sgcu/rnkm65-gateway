@@ -4,6 +4,7 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
 	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -52,6 +53,11 @@ func (h *Handler) UploadImage(c IContext) {
 	id := c.UserID()
 	file, err := c.File(constant.Image, constant.AllowImageContentType, h.MaxFileSize)
 	if err != nil {
+		log.Error().
+			Err(err).
+			Str("service", "file").
+			Str("module", "upload image").
+			Msg("Invalid file")
 		c.JSON(http.StatusBadRequest, &dto.ResponseErr{
 			StatusCode: http.StatusBadRequest,
 			Message:    "Invalid file",
