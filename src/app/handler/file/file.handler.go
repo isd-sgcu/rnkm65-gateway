@@ -6,6 +6,7 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"strings"
 )
 
 type Handler struct {
@@ -15,7 +16,7 @@ type Handler struct {
 }
 
 type IService interface {
-	UploadImage(*dto.DecomposedFile) (string, *dto.ResponseErr)
+	UploadImage(*dto.DecomposedFile, string, constant.Tag) (string, *dto.ResponseErr)
 }
 
 type IUserService interface {
@@ -26,6 +27,7 @@ type IContext interface {
 	File(string, map[string]struct{}, int64) (*dto.DecomposedFile, error)
 	JSON(int, interface{})
 	UserID() string
+	GetFormData(string) string
 }
 
 func NewHandler(service IService, usrService IUserService, maxFileSize int) *Handler {
@@ -51,6 +53,16 @@ func NewHandler(service IService, usrService IUserService, maxFileSize int) *Han
 // @Router /file/image [post]
 func (h *Handler) UploadImage(c IContext) {
 	id := c.UserID()
+
+	tag := getTagNumber(c.GetFormData("tag"))
+	if tag == constant.Unknown {
+		c.JSON(http.StatusBadRequest, &dto.ResponseErr{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid tag",
+		})
+		return
+	}
+
 	file, err := c.File(constant.Image, constant.AllowImageContentType, h.MaxFileSize)
 	if err != nil {
 		log.Error().
@@ -73,7 +85,7 @@ func (h *Handler) UploadImage(c IContext) {
 
 	file.Filename = usr.StudentID
 
-	filename, errRes := h.service.UploadImage(file)
+	filename, errRes := h.service.UploadImage(file, id, tag)
 	if errRes != nil {
 		c.JSON(errRes.StatusCode, errRes)
 		return
@@ -82,4 +94,15 @@ func (h *Handler) UploadImage(c IContext) {
 	c.JSON(http.StatusCreated, &dto.FileResponse{
 		Filename: filename,
 	})
+}
+
+func getTagNumber(tag string) constant.Tag {
+	switch strings.ToLower(tag) {
+	case "profile":
+		return constant.Profile
+	case "baan":
+		return constant.Baan
+	default:
+		return constant.Unknown
+	}
 }

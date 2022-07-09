@@ -13,3 +13,11 @@ const (
 	File  FileType = "file"
 	Image          = "image"
 )
+
+type Tag int
+
+const (
+	Unknown Tag = 0
+	Profile     = 1
+	Baan        = 2
+)

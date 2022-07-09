@@ -3,6 +3,7 @@ package file
 import (
 	"github.com/bxcodec/faker/v3"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
 	mock "github.com/isd-sgcu/rnkm65-gateway/src/mocks/file"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/pkg/errors"
@@ -14,6 +15,8 @@ import (
 
 type FileServiceTest struct {
 	suite.Suite
+	url            string
+	userId         string
 	fileDecomposed *dto.DecomposedFile
 	ServiceDownErr *dto.ResponseErr
 }
@@ -23,6 +26,9 @@ func TestFileService(t *testing.T) {
 }
 
 func (t *FileServiceTest) SetupTest() {
+	t.url = faker.URL()
+	t.userId = faker.UUIDDigit()
+
 	t.fileDecomposed = &dto.DecomposedFile{
 		Filename: faker.Word(),
 		Data:     []byte("Hello"),
@@ -36,15 +42,15 @@ func (t *FileServiceTest) SetupTest() {
 }
 
 func (t *FileServiceTest) TestUploadImageSuccess() {
-	want := t.fileDecomposed.Filename
+	want := t.url
 
 	c := mock.ClientMock{}
 	c.On("UploadImage", &proto.UploadImageRequest{
-		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data}).Return(&proto.UploadImageResponse{Filename: t.fileDecomposed.Filename}, nil)
+		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId}).Return(&proto.UploadImageResponse{Url: t.url}, nil)
 
 	srv := NewService(&c)
 
-	actual, err := srv.UploadImage(t.fileDecomposed)
+	actual, err := srv.UploadImage(t.fileDecomposed, t.userId, constant.Profile)
 
 	assert.Nil(t.T(), err)
 	assert.Equal(t.T(), want, actual)
@@ -55,11 +61,11 @@ func (t *FileServiceTest) TestUploadImageFailed() {
 
 	c := mock.ClientMock{}
 	c.On("UploadImage", &proto.UploadImageRequest{
-		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data}).Return(nil, errors.New("Cannot connect to service"))
+		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId}).Return(nil, errors.New("Cannot connect to service"))
 
 	srv := NewService(&c)
 
-	actual, err := srv.UploadImage(t.fileDecomposed)
+	actual, err := srv.UploadImage(t.fileDecomposed, t.userId, constant.Profile)
 
 	assert.Equal(t.T(), "", actual)
 	assert.Equal(t.T(), want, err)

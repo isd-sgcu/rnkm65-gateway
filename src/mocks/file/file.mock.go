@@ -3,6 +3,7 @@ package file
 import (
 	"context"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
@@ -66,12 +67,18 @@ func (c *ContextMock) File(key string, allowContent map[string]struct{}, _ int64
 	return res, args.Error(1)
 }
 
+func (c *ContextMock) GetFormData(key string) string {
+	args := c.Called(key)
+
+	return args.String(0)
+}
+
 type ServiceMock struct {
 	mock.Mock
 }
 
-func (s *ServiceMock) UploadImage(file *dto.DecomposedFile) (res string, err *dto.ResponseErr) {
-	args := s.Called(file)
+func (s *ServiceMock) UploadImage(file *dto.DecomposedFile, userId string, tag constant.Tag) (res string, err *dto.ResponseErr) {
+	args := s.Called(file, userId, tag)
 
 	if args.Get(1) != nil {
 		err = args.Get(1).(*dto.ResponseErr)

@@ -81,12 +81,13 @@ func (t *UserHandlerTest) TestUploadImageSuccess() {
 	c := mock.ContextMock{}
 	c.On("File", t.imgKey, constant.AllowImageContentType).Return(t.fileDecompose, nil)
 	c.On("UserID").Return(t.user.Id)
+	c.On("GetFormData", "tag").Return("profile", nil)
 
 	usrSrv := mockUsr.ServiceMock{}
 	usrSrv.On("FindOne", t.user.Id).Return(t.user, nil)
 
 	srv := mock.ServiceMock{}
-	srv.On("UploadImage", t.fileDecompose).Return(t.filename, nil)
+	srv.On("UploadImage", t.fileDecompose, t.user.Id, constant.Tag(constant.Profile)).Return(t.filename, nil)
 
 	hdr := NewHandler(&srv, &usrSrv, t.maxFileSize)
 
@@ -105,12 +106,13 @@ func (t *UserHandlerTest) TestUploadImageInvalidFile() {
 	c := mock.ContextMock{}
 	c.On("File", t.imgKey, constant.AllowImageContentType).Return(nil, errors.New("Invalid file"))
 	c.On("UserID").Return(t.user.Id)
+	c.On("GetFormData", "tag").Return("profile", nil)
 
 	usrSrv := mockUsr.ServiceMock{}
 	usrSrv.On("FindOne", t.user.Id).Return(t.user, nil)
 
 	srv := mock.ServiceMock{}
-	srv.On("UploadImage", t.fileDecompose).Return("", nil)
+	srv.On("UploadImage", t.fileDecompose, t.user.Id, constant.Profile).Return("", nil)
 
 	hdr := NewHandler(&srv, &usrSrv, t.maxFileSize)
 
@@ -130,12 +132,13 @@ func testUploadFailed(t *testing.T, err *dto.ResponseErr, key string, file *dto.
 	c := mock.ContextMock{}
 	c.On("File", key, constant.AllowImageContentType).Return(file, nil)
 	c.On("UserID").Return(user.Id)
+	c.On("GetFormData", "tag").Return("profile", nil)
 
 	usrSrv := mockUsr.ServiceMock{}
 	usrSrv.On("FindOne", user.Id).Return(user, nil)
 
 	srv := mock.ServiceMock{}
-	srv.On("UploadImage", file).Return("", err)
+	srv.On("UploadImage", file, user.Id, constant.Tag(constant.Profile)).Return("", err)
 
 	hdr := NewHandler(&srv, &usrSrv, maxFileSize)
 
@@ -150,12 +153,13 @@ func (t *UserHandlerTest) TestUploadImageGrpcErr() {
 	c := mock.ContextMock{}
 	c.On("File", t.imgKey, constant.AllowImageContentType).Return(t.fileDecompose, nil)
 	c.On("UserID").Return(t.user.Id)
+	c.On("GetFormData", "tag").Return("profile", nil)
 
 	usrSrv := mockUsr.ServiceMock{}
 	usrSrv.On("FindOne", t.user.Id).Return(nil, t.ServiceDownErr)
 
 	srv := mock.ServiceMock{}
-	srv.On("UploadImage", t.fileDecompose).Return("", nil)
+	srv.On("UploadImage", t.fileDecompose, t.user.Id, constant.Profile).Return("", nil)
 
 	hdr := NewHandler(&srv, &usrSrv, t.maxFileSize)
 

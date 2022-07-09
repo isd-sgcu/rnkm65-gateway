@@ -3,6 +3,7 @@ package file
 import (
 	"context"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -19,13 +20,15 @@ func NewService(client proto.FileServiceClient) *Service {
 	return &Service{client: client}
 }
 
-func (s *Service) UploadImage(file *dto.DecomposedFile) (string, *dto.ResponseErr) {
+func (s *Service) UploadImage(file *dto.DecomposedFile, userId string, tag constant.Tag) (string, *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	res, err := s.client.UploadImage(ctx, &proto.UploadImageRequest{
 		Filename: file.Filename,
 		Data:     file.Data,
+		UserId:   userId,
+		Tag:      int32(tag),
 	})
 
 	if err != nil {
@@ -37,7 +40,7 @@ func (s *Service) UploadImage(file *dto.DecomposedFile) (string, *dto.ResponseEr
 					Err(err).
 					Str("service", "file").
 					Str("module", "upload image").
-					Msg("Cannot connect to google cloud storage")
+					Msg("Something wrong")
 				return "", &dto.ResponseErr{
 					StatusCode: http.StatusGatewayTimeout,
 					Message:    "Connection timeout",
@@ -72,5 +75,5 @@ func (s *Service) UploadImage(file *dto.DecomposedFile) (string, *dto.ResponseEr
 
 	}
 
-	return res.Filename, nil
+	return res.Url, nil
 }
