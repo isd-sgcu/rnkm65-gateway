@@ -3,7 +3,7 @@ package file
 import (
 	"github.com/bxcodec/faker/v3"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
-	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant/file"
 	mock "github.com/isd-sgcu/rnkm65-gateway/src/mocks/file"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/pkg/errors"
@@ -41,31 +41,31 @@ func (t *FileServiceTest) SetupTest() {
 	}
 }
 
-func (t *FileServiceTest) TestUploadImageSuccess() {
+func (t *FileServiceTest) TestUploadSuccess() {
 	want := t.url
 
 	c := mock.ClientMock{}
-	c.On("UploadImage", &proto.UploadImageRequest{
-		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId}).Return(&proto.UploadImageResponse{Url: t.url}, nil)
+	c.On("Upload", &proto.UploadRequest{
+		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId, Type: file.Image}).Return(&proto.UploadResponse{Url: t.url}, nil)
 
 	srv := NewService(&c)
 
-	actual, err := srv.UploadImage(t.fileDecomposed, t.userId, constant.Profile)
+	actual, err := srv.Upload(t.fileDecomposed, t.userId, file.Profile, file.Image)
 
 	assert.Nil(t.T(), err)
 	assert.Equal(t.T(), want, actual)
 }
 
-func (t *FileServiceTest) TestUploadImageFailed() {
+func (t *FileServiceTest) TestUploadFailed() {
 	want := t.ServiceDownErr
 
 	c := mock.ClientMock{}
-	c.On("UploadImage", &proto.UploadImageRequest{
-		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId}).Return(nil, errors.New("Cannot connect to service"))
+	c.On("Upload", &proto.UploadRequest{
+		Filename: t.fileDecomposed.Filename, Data: t.fileDecomposed.Data, Tag: 1, UserId: t.userId, Type: file.Image}).Return(nil, errors.New("Cannot connect to service"))
 
 	srv := NewService(&c)
 
-	actual, err := srv.UploadImage(t.fileDecomposed, t.userId, constant.Profile)
+	actual, err := srv.Upload(t.fileDecomposed, t.userId, file.Profile, file.Image)
 
 	assert.Equal(t.T(), "", actual)
 	assert.Equal(t.T(), want, err)

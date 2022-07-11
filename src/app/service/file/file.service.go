@@ -3,7 +3,7 @@ package file
 import (
 	"context"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
-	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant/file"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -20,15 +20,16 @@ func NewService(client proto.FileServiceClient) *Service {
 	return &Service{client: client}
 }
 
-func (s *Service) UploadImage(file *dto.DecomposedFile, userId string, tag constant.Tag) (string, *dto.ResponseErr) {
+func (s *Service) Upload(file *dto.DecomposedFile, userId string, tag file.Tag, fileType file.Type) (string, *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := s.client.UploadImage(ctx, &proto.UploadImageRequest{
+	res, err := s.client.Upload(ctx, &proto.UploadRequest{
 		Filename: file.Filename,
 		Data:     file.Data,
 		UserId:   userId,
 		Tag:      int32(tag),
+		Type:     int32(fileType),
 	})
 
 	if err != nil {

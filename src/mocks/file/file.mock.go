@@ -3,7 +3,7 @@ package file
 import (
 	"context"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
-	"github.com/isd-sgcu/rnkm65-gateway/src/constant"
+	"github.com/isd-sgcu/rnkm65-gateway/src/constant/file"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
@@ -13,21 +13,11 @@ type ClientMock struct {
 	mock.Mock
 }
 
-func (c *ClientMock) UploadImage(_ context.Context, in *proto.UploadImageRequest, _ ...grpc.CallOption) (res *proto.UploadImageResponse, err error) {
+func (c *ClientMock) Upload(_ context.Context, in *proto.UploadRequest, _ ...grpc.CallOption) (res *proto.UploadResponse, err error) {
 	args := c.Called(in)
 
 	if args.Get(0) != nil {
-		res = args.Get(0).(*proto.UploadImageResponse)
-	}
-
-	return res, args.Error(1)
-}
-
-func (c *ClientMock) UploadFile(_ context.Context, in *proto.UploadFileRequest, _ ...grpc.CallOption) (res *proto.UploadFileResponse, err error) {
-	args := c.Called(in)
-
-	if args.Get(0) != nil {
-		res = args.Get(0).(*proto.UploadFileResponse)
+		res = args.Get(0).(*proto.UploadResponse)
 	}
 
 	return res, args.Error(1)
@@ -77,8 +67,8 @@ type ServiceMock struct {
 	mock.Mock
 }
 
-func (s *ServiceMock) UploadImage(file *dto.DecomposedFile, userId string, tag constant.Tag) (res string, err *dto.ResponseErr) {
-	args := s.Called(file, userId, tag)
+func (s *ServiceMock) Upload(file *dto.DecomposedFile, userId string, tag file.Tag, fileType file.Type) (res string, err *dto.ResponseErr) {
+	args := s.Called(file, userId, tag, fileType)
 
 	if args.Get(1) != nil {
 		err = args.Get(1).(*dto.ResponseErr)
