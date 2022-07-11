@@ -18,9 +18,10 @@ import (
 
 type FiberRouter struct {
 	*fiber.App
-	user fiber.Router
-	auth fiber.Router
-	file fiber.Router
+	user  fiber.Router
+	auth  fiber.Router
+	file  fiber.Router
+	group fiber.Router
 }
 
 type IGuard interface {
@@ -46,8 +47,8 @@ func NewFiberRouter(authGuard IGuard, conf config.App) *FiberRouter {
 	user := NewGroupRouteWithAuthMiddleware(r, "/user", authGuard.Use)
 	auth := NewGroupRouteWithAuthMiddleware(r, "/auth", authGuard.Use)
 	file := NewGroupRouteWithAuthMiddleware(r, "/file", authGuard.Use)
-
-	return &FiberRouter{r, user, auth, file}
+	group := NewGroupRouteWithAuthMiddleware(r, "/group", authGuard.Use)
+	return &FiberRouter{r, user, auth, file, group}
 }
 
 func NewGroupRouteWithAuthMiddleware(r *fiber.App, path string, middleware func(ctx guard.IContext)) fiber.Router {
@@ -86,6 +87,17 @@ func (c *FiberCtx) ID() (id string, err error) {
 	}
 
 	return id, nil
+}
+
+func (c *FiberCtx) Param(key string) (value string, err error) {
+	value = c.Params(key)
+
+	_, err = uuid.Parse(value)
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
 }
 
 func (c *FiberCtx) Token() string {

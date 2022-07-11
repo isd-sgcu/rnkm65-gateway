@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package group;
+
+option go_package = "src/proto";
+
+service GroupService {
+  rpc FindOne(FindOneGroupRequest) returns (FindOneGroupResponse){}
+  rpc FindByToken(FindByTokenGroupRequest) returns (FindByTokenGroupResponse) {}
+  rpc Create(CreateGroupRequest) returns (CreateGroupResponse) {}
+  rpc Update(UpdateGroupRequest) returns (UpdateGroupResponse) {}
+  rpc Delete(DeleteGroupRequest) returns (DeleteGroupResponse){}
+}
+
+message Group{
+  string id = 1;
+  string leaderID = 2;
+  string token = 3;
+}
+
+// FindOne
+
+message FindOneGroupRequest{
+  string id = 1;
+}
+
+message FindOneGroupResponse{
+  Group group = 1;
+}
+
+// Find By Token
+
+message FindByTokenGroupRequest{
+  string token = 1;
+}
+
+message FindByTokenGroupResponse{
+  Group group = 1;
+}
+
+// Create
+
+message CreateGroupRequest{
+  Group group = 1;
+}
+
+message CreateGroupResponse{
+  Group group = 1;
+}
+
+// Update
+
+message UpdateGroupRequest{
+  Group group = 1;
+  string userId = 2;
+}
+
+message UpdateGroupResponse{
+  Group group = 1;
+}
+
+// Delete
+
+message DeleteGroupRequest{
+  string id = 1;
+}
+
+message DeleteGroupResponse{
+  bool success = 1;
+}

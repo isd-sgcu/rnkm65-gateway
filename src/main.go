@@ -5,12 +5,14 @@ import (
 	"fmt"
 	authHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	fileHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/file"
+	grpHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/group"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/handler/health-check"
 	usrHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/user"
 	guard "github.com/isd-sgcu/rnkm65-gateway/src/app/middleware/auth"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/router"
 	authSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/auth"
 	fileSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/file"
+	grpSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/group"
 	usrSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/user"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/validator"
 	"github.com/isd-sgcu/rnkm65-gateway/src/config"
@@ -118,7 +120,11 @@ func main() {
 	fSrv := fileSrv.NewService(fClient)
 	fHdr := fileHdr.NewHandler(fSrv, uSrv, conf.App.MaxFileSize)
 
-	authGuard := guard.NewAuthGuard(aSrv, auth.ExcludePath, conf.Guard.Phase)
+	gClient := proto.NewGroupServiceClient(backendConn)
+	gSrv := grpSrv.NewService(gClient)
+	gHdr := grpHdr.NewHandler(gSrv, v)
+
+	authGuard := guard.NewAuthGuard(aSrv, constant.AuthExcludePath, conf.Guard.Phase)
 
 	r := router.NewFiberRouter(&authGuard, conf.App)
 
@@ -135,6 +141,9 @@ func main() {
 	r.PostAuth("/refreshToken", aHdr.RefreshToken)
 
 	r.PostFile("/upload", fHdr.Upload)
+
+	r.GetGroup("/:token", gHdr.FindByToken)
+	r.PostGroup("/", gHdr.Create)
 
 	go func() {
 		if err := r.Listen(fmt.Sprintf(":%v", conf.App.Port)); err != nil && err != http.ErrServerClosed {
