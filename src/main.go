@@ -124,7 +124,7 @@ func main() {
 	gSrv := grpSrv.NewService(gClient)
 	gHdr := grpHdr.NewHandler(gSrv, v)
 
-	authGuard := guard.NewAuthGuard(aSrv, constant.AuthExcludePath, conf.Guard.Phase)
+	authGuard := guard.NewAuthGuard(aSrv, auth.ExcludePath, conf.Guard.Phase)
 
 	r := router.NewFiberRouter(&authGuard, conf.App)
 
