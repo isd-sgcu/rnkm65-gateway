@@ -21,11 +21,24 @@ definitions:
     type: object
   dto.FileResponse:
     properties:
-      failed_field:
+      url:
+        example: file-example.jpg-6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
         type: string
       message:
         type: string
       value: {}
+    type: object
+  dto.GroupDto:
+    properties:
+      id:
+        type: string
+      leader_id:
+        type: string
+      token:
+        type: string
+    required:
+    - leader_id
+    - token
     type: object
   dto.RedeemNewToken:
     properties:
@@ -159,6 +172,15 @@ definitions:
     required:
     - ticket
     type: object
+  proto.Group:
+    properties:
+      id:
+        type: string
+      leaderID:
+        type: string
+      token:
+        type: string
+    type: object
   proto.User:
     properties:
       allergyFood:
@@ -198,9 +220,7 @@ info:
   contact:
     email: sd.team.sgcu@gmail.com
     name: ISD Team
-  description: |-
-    # RNKM API
-    This is the documentation for https://freshersfairs.com
+  description: "# RNKM API\r\nThis is the documentation for https://freshersfairs.com"
   title: RNKM Backend
   version: "1.0"
 paths:
@@ -315,7 +335,7 @@ paths:
       summary: Verify ticket and get credential
       tags:
       - auth
-  /file/image:
+  /file/upload:
     post:
       consumes:
       - multipart/form-data
@@ -348,6 +368,87 @@ paths:
       summary: Upload the image
       tags:
       - file
+  /group:
+    post:
+      consumes:
+      - application/json
+      description: Return the group dto if successfully
+      parameters:
+      - description: Group DTO
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/proto.Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ResponseForbiddenErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
+      summary: Create new group
+      tags:
+      - group
+  /group/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Return the group dto if successfully
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      summary: Get the group data by token
+      tags:
+      - group
   /user:
     post:
       consumes:
@@ -564,31 +665,18 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
-- description: |-
-    # Health Check Tag API Documentation
-    **Health Check** functions goes here
+- description: "# Health Check Tag API Documentation\r\n**Health Check** functions
+    goes here"
   name: health check
-- description: |-
-    # Auth Tag API Documentation
-    **Auth** functions goes here
+- description: "# Auth Tag API Documentation\r\n**Auth** functions goes here"
   name: auth
-- description: |-
-    # User Tag API Documentation
-    **User** functions goes here
+- description: "# User Tag API Documentation\r\n**User** functions goes here"
   name: user
-- description: |-
-    # File Tag API Documentation
-    **File** functions goes here
+- description: "# File Tag API Documentation\r\n**File** functions goes here"
   name: file
-- description: |-
-    # Group Tag API Documentation
-    **Group** functions goes here
+- description: "# Group Tag API Documentation\r\n**Group** functions goes here"
   name: group
-- description: |-
-    # Baan Tag API Documentation
-    **Baan** functions goes here
+- description: "# Baan Tag API Documentation\r\n**Baan** functions goes here"
   name: baan
-- description: |-
-    # Event Tag API Documentation
-    **Event** functions goes here
+- description: "# Event Tag API Documentation\r\n**Event** functions goes here"
   name: event
