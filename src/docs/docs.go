@@ -548,80 +548,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "security": [
-                    {
-                        "AuthToken": []
-                    }
-                ],
-                "description": "Return the user dto if successfully",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Update the existing user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "user dto",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/proto.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseBadRequestErr"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseForbiddenErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseNotfoundErr"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "security": [
                     {
@@ -683,6 +609,46 @@ const docTemplate = `{
                         "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/dto.ResponseServiceDownErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/vaccine/callback": {
+            "post": {
+                "description": "Return nothing if success",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vaccine"
+                ],
+                "summary": "Verify the user status",
+                "parameters": [
+                    {
+                        "description": "user dto",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Verify"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "bool"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseForbiddenErr"
                         }
                     }
                 }
@@ -924,6 +890,14 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Verify": {
+            "type": "object",
+            "properties": {
+                "student_id": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.VerifyTicket": {
             "type": "object",
             "required": [
@@ -979,6 +953,9 @@ const docTemplate = `{
                 "imageUrl": {
                     "type": "string"
                 },
+                "isVerify": {
+                    "type": "boolean"
+                },
                 "lastname": {
                     "type": "string"
                 },
@@ -1016,7 +993,11 @@ const docTemplate = `{
             "name": "health check"
         },
         {
-            "description": "# Auth Tag API Documentation\r\n**Auth** functions goes here",
+            "description": "# Vaccine Tag API Documentation\n**Vaccine** functions goes here",
+            "name": "vaccine"
+        },
+        {
+            "description": "# Auth Tag API Documentation\n**Auth** functions goes here",
             "name": "auth"
         },
         {

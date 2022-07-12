@@ -16,3 +16,7 @@ type UserDto struct {
 	ImageUrl        string `json:"image_url" validate:"url"`
 	CanSelectBaan   bool   `json:"can_select_baan" validate:"required"`
 }
+
+type Verify struct {
+	StudentId string `json:"student_id"`
+}

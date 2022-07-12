@@ -47,6 +47,9 @@ import (
 // @tag.name health check
 // @tag.description.markdown
 
+// @tag.name vaccine
+// @tag.description.markdown
+
 // @tag.name auth
 // @tag.description.markdown
 
@@ -141,6 +144,8 @@ func main() {
 	r.PostAuth("/refreshToken", aHdr.RefreshToken)
 
 	r.PostFile("/upload", fHdr.Upload)
+
+	r.PostMethod("/vaccine/callback", uHdr.Verify)
 
 	r.GetGroup("/:token", gHdr.FindByToken)
 	r.PostGroup("/", gHdr.Create)

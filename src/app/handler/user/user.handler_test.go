@@ -88,10 +88,7 @@ func (t *UserHandlerTest) TestFindOneUser() {
 	srv := new(mock.ServiceMock)
 	srv.On("FindOne", t.User.Id).Return(want, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 
 	v, _ := validator.NewValidator()
@@ -100,6 +97,7 @@ func (t *UserHandlerTest) TestFindOneUser() {
 	h.FindOne(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusOK, c.Status)
 }
 
 func (t *UserHandlerTest) TestFindOneFoundErr() {
@@ -108,10 +106,7 @@ func (t *UserHandlerTest) TestFindOneFoundErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("FindOne", t.User.Id).Return(nil, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 
 	v, _ := validator.NewValidator()
@@ -120,6 +115,7 @@ func (t *UserHandlerTest) TestFindOneFoundErr() {
 	h.FindOne(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusNotFound, c.Status)
 }
 
 func (t *UserHandlerTest) TestFindOneInternalErr() {
@@ -132,10 +128,7 @@ func (t *UserHandlerTest) TestFindOneInternalErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("FindOne", t.User.Id).Return(nil, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return("", errors.New("Cannot parse id"))
 
 	v, _ := validator.NewValidator()
@@ -144,6 +137,7 @@ func (t *UserHandlerTest) TestFindOneInternalErr() {
 	h.FindOne(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusInternalServerError, c.Status)
 }
 
 func (t *UserHandlerTest) TestFindOneGrpcErr() {
@@ -152,10 +146,7 @@ func (t *UserHandlerTest) TestFindOneGrpcErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("FindOne", t.User.Id).Return(nil, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 
 	v, _ := validator.NewValidator()
@@ -164,6 +155,7 @@ func (t *UserHandlerTest) TestFindOneGrpcErr() {
 	h.FindOne(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateSuccess() {
@@ -172,11 +164,8 @@ func (t *UserHandlerTest) TestCreateSuccess() {
 	srv := new(mock.ServiceMock)
 	srv.On("Create", t.UserDto).Return(want, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -184,6 +173,7 @@ func (t *UserHandlerTest) TestCreateSuccess() {
 	h.Create(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusCreated, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateValidateErr() {
@@ -191,7 +181,7 @@ func (t *UserHandlerTest) TestCreateValidateErr() {
 		StatusCode: http.StatusBadRequest,
 		Message:    "Invalid body request",
 		Data: []*dto.BadReqErrResponse{
-			&dto.BadReqErrResponse{
+			{
 				Message:     "ImageUrl must be a valid URL",
 				FailedField: "ImageUrl",
 				Value:       "",
@@ -204,11 +194,8 @@ func (t *UserHandlerTest) TestCreateValidateErr() {
 
 	t.UserDto.ImageUrl = ""
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -216,6 +203,7 @@ func (t *UserHandlerTest) TestCreateValidateErr() {
 	h.Create(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateGrpcErr() {
@@ -224,11 +212,8 @@ func (t *UserHandlerTest) TestCreateGrpcErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("Create", t.UserDto).Return(nil, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -236,6 +221,7 @@ func (t *UserHandlerTest) TestCreateGrpcErr() {
 	h.Create(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }
 
 func (t *UserHandlerTest) TestUpdateSuccess() {
@@ -244,13 +230,10 @@ func (t *UserHandlerTest) TestUpdateSuccess() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.User.Id, t.UserDto).Return(want, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 	c.On("UserID").Return(t.User.Id, nil)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -265,7 +248,7 @@ func (t *UserHandlerTest) TestUpdateValidateErr() {
 		StatusCode: http.StatusBadRequest,
 		Message:    "Invalid body request",
 		Data: []*dto.BadReqErrResponse{
-			&dto.BadReqErrResponse{
+			{
 				Message:     "ImageUrl must be a valid URL",
 				FailedField: "ImageUrl",
 				Value:       "",
@@ -278,11 +261,8 @@ func (t *UserHandlerTest) TestUpdateValidateErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.UserDto).Return(nil, t.BindErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 	c.On("ID").Return(t.User.Id, nil)
 	c.On("UserID").Return(t.User.Id, nil)
 
@@ -292,6 +272,7 @@ func (t *UserHandlerTest) TestUpdateValidateErr() {
 	h.Update(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
 }
 
 func (t *UserHandlerTest) TestUpdateForbidden() {
@@ -303,13 +284,10 @@ func (t *UserHandlerTest) TestUpdateForbidden() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.User.Id, t.UserDto).Return(nil, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(faker.UUIDDigit(), nil)
 	c.On("UserID").Return(t.User.Id, nil)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -317,6 +295,7 @@ func (t *UserHandlerTest) TestUpdateForbidden() {
 	h.Update(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusForbidden, c.Status)
 }
 
 func (t *UserHandlerTest) TestUpdateNotFound() {
@@ -325,13 +304,10 @@ func (t *UserHandlerTest) TestUpdateNotFound() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.User.Id, t.UserDto).Return(nil, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 	c.On("UserID").Return(t.User.Id, nil)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -339,6 +315,7 @@ func (t *UserHandlerTest) TestUpdateNotFound() {
 	h.Update(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusNotFound, c.Status)
 }
 
 func (t *UserHandlerTest) TestUpdateInvalidID() {
@@ -350,10 +327,7 @@ func (t *UserHandlerTest) TestUpdateInvalidID() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.User.Id).Return(nil, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return("", errors.New(want.Message))
 	c.On("UserID").Return(t.User.Id, nil)
 
@@ -363,6 +337,7 @@ func (t *UserHandlerTest) TestUpdateInvalidID() {
 	h.Update(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
 }
 
 func (t *UserHandlerTest) TestUpdateGrpcErr() {
@@ -371,13 +346,10 @@ func (t *UserHandlerTest) TestUpdateGrpcErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("Update", t.User.Id, t.UserDto).Return(nil, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 	c.On("UserID").Return(t.User.Id, nil)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -385,6 +357,60 @@ func (t *UserHandlerTest) TestUpdateGrpcErr() {
 	h.Update(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
+}
+
+func (t *UserHandlerTest) TestVerifySuccess() {
+	srv := new(mock.ServiceMock)
+	srv.On("Verify", t.User.StudentID).Return(true, nil)
+
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.Verify{}).Return(&dto.Verify{StudentId: t.User.StudentID}, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Verify(c)
+
+	assert.Equal(t.T(), http.StatusNoContent, c.Status)
+}
+
+func (t *UserHandlerTest) TestVerifyNotFound() {
+	want := t.NotFoundErr
+
+	srv := new(mock.ServiceMock)
+	srv.On("Verify", t.User.StudentID).Return(nil, t.NotFoundErr)
+
+	c := new(mock.ContextMock)
+	c.On("Bind", &dto.Verify{}).Return(&dto.Verify{StudentId: t.User.StudentID}, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Verify(c)
+
+	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusNotFound, c.Status)
+}
+
+func (t *UserHandlerTest) TestVerifyGrpcErr() {
+	want := t.ServiceDownErr
+
+	srv := new(mock.ServiceMock)
+	srv.On("Update", t.User.Id, t.UserDto).Return(nil, t.ServiceDownErr)
+
+	c := &mock.ContextMock{}
+	c.On("ID").Return(t.User.Id, nil)
+	c.On("UserID").Return(t.User.Id, nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateOrUpdateSuccess() {
@@ -393,12 +419,9 @@ func (t *UserHandlerTest) TestCreateOrUpdateSuccess() {
 	srv := new(mock.ServiceMock)
 	srv.On("CreateOrUpdate", t.UserDto).Return(want, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -406,6 +429,7 @@ func (t *UserHandlerTest) TestCreateOrUpdateSuccess() {
 	h.CreateOrUpdate(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusOK, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateOrUpdateValidateErr() {
@@ -413,7 +437,7 @@ func (t *UserHandlerTest) TestCreateOrUpdateValidateErr() {
 		StatusCode: http.StatusBadRequest,
 		Message:    "Invalid body request",
 		Data: []*dto.BadReqErrResponse{
-			&dto.BadReqErrResponse{
+			{
 				Message:     "ID is not uuid",
 				FailedField: "ID",
 				Value:       "abc",
@@ -426,11 +450,8 @@ func (t *UserHandlerTest) TestCreateOrUpdateValidateErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("CreateOrUpdate", t.UserDto).Return(nil, t.BindErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 	c.On("UserID").Return(t.User.Id)
 
 	v, _ := validator.NewValidator()
@@ -439,6 +460,7 @@ func (t *UserHandlerTest) TestCreateOrUpdateValidateErr() {
 	h.CreateOrUpdate(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
 }
 
 func (t *UserHandlerTest) TestCreateOrUpdateGrpcErr() {
@@ -447,12 +469,9 @@ func (t *UserHandlerTest) TestCreateOrUpdateGrpcErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("CreateOrUpdate", t.UserDto).Return(nil, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -460,16 +479,14 @@ func (t *UserHandlerTest) TestCreateOrUpdateGrpcErr() {
 	h.CreateOrUpdate(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }
 
 func (t *UserHandlerTest) TestDeleteSuccess() {
 	srv := new(mock.ServiceMock)
 	srv.On("Delete", t.User.Id).Return(true, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 
 	v, _ := validator.NewValidator()
@@ -478,6 +495,7 @@ func (t *UserHandlerTest) TestDeleteSuccess() {
 	h.Delete(c)
 
 	assert.True(t.T(), c.V.(bool))
+	assert.Equal(t.T(), http.StatusOK, c.Status)
 }
 
 func (t *UserHandlerTest) TestDeleteNotFound() {
@@ -486,10 +504,7 @@ func (t *UserHandlerTest) TestDeleteNotFound() {
 	srv := new(mock.ServiceMock)
 	srv.On("Delete", t.User.Id).Return(false, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 
 	v, _ := validator.NewValidator()
@@ -509,10 +524,7 @@ func (t *UserHandlerTest) TestDeleteInvalidID() {
 	srv := new(mock.ServiceMock)
 	srv.On("Delete", t.User.Id).Return(false, t.NotFoundErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return("", errors.New(want.Message))
 
 	v, _ := validator.NewValidator()
@@ -521,6 +533,7 @@ func (t *UserHandlerTest) TestDeleteInvalidID() {
 	h.Delete(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
 }
 
 func (t *UserHandlerTest) TestDeleteGrpcErr() {
@@ -529,10 +542,7 @@ func (t *UserHandlerTest) TestDeleteGrpcErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("Delete", t.User.Id).Return(false, t.ServiceDownErr)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
+	c := &mock.ContextMock{}
 	c.On("ID").Return(t.User.Id, nil)
 	v, _ := validator.NewValidator()
 
@@ -540,4 +550,5 @@ func (t *UserHandlerTest) TestDeleteGrpcErr() {
 	h.Delete(c)
 
 	assert.Equal(t.T(), want, c.V)
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }
