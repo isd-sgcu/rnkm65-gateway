@@ -188,6 +188,12 @@ func (c *ContextMock) ID() (string, error) {
 	return args.String(0), args.Error(1)
 }
 
+func (c *ContextMock) Host() string {
+	args := c.Called()
+
+	return args.String(0)
+}
+
 func (c *ContextMock) UserID() string {
 	args := c.Called()
 	return args.String(0)

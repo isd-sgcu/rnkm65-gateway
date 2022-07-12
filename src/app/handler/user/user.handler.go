@@ -5,8 +5,11 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
 	validate "github.com/isd-sgcu/rnkm65-gateway/src/app/validator"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
+
+const ValidHost = "cucheck.in"
 
 type Handler struct {
 	service  IService
@@ -25,6 +28,7 @@ type IContext interface {
 	JSON(int, interface{})
 	ID() (string, error)
 	UserID() string
+	Host() string
 }
 
 type IService interface {
@@ -125,6 +129,19 @@ func (h *Handler) Create(ctx IContext) {
 // @Failure 403 {object} dto.ResponseForbiddenErr Invalid host
 // @Router /vaccine/callback [post]
 func (h *Handler) Verify(ctx IContext) {
+	host := ctx.Host()
+
+	log.Print(host)
+	log.Print(ValidHost)
+
+	if host != ValidHost {
+		ctx.JSON(http.StatusForbidden, &dto.ResponseErr{
+			StatusCode: http.StatusForbidden,
+			Message:    "Forbidden",
+		})
+		return
+	}
+
 	verifyReq := dto.Verify{}
 	err := ctx.Bind(&verifyReq)
 	if err != nil {
