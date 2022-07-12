@@ -132,7 +132,6 @@ func (h *Handler) Verify(ctx IContext) {
 	host := ctx.Host()
 
 	log.Print(host)
-	log.Print(ValidHost)
 
 	if host != ValidHost {
 		ctx.JSON(http.StatusForbidden, &dto.ResponseErr{
