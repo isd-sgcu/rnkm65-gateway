@@ -182,7 +182,7 @@ func (t *UserHandlerTest) TestCreateValidateErr() {
 		StatusCode: http.StatusBadRequest,
 		Message:    "Invalid body request",
 		Data: []*dto.BadReqErrResponse{
-			&dto.BadReqErrResponse{
+			{
 				Message:     "Email must be a valid email address",
 				FailedField: "Email",
 				Value:       "",
@@ -195,11 +195,8 @@ func (t *UserHandlerTest) TestCreateValidateErr() {
 	srv := new(mock.ServiceMock)
 	srv.On("Create", t.UserDto).Return(t.User, nil)
 
-	c := &mock.ContextMock{
-		User:    t.User,
-		UserDto: t.UserDto,
-	}
-	c.On("Bind", &dto.UserDto{}).Return(nil)
+	c := &mock.ContextMock{}
+	c.On("Bind", &dto.UserDto{}).Return(t.UserDto, nil)
 
 	v, _ := validator.NewValidator()
 

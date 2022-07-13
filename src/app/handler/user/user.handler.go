@@ -134,6 +134,13 @@ func (h *Handler) Verify(ctx IContext) {
 	log.Print(host)
 
 	if host != ValidHost {
+
+		log.Warn().
+			Str("service", "user").
+			Str("module", "verify").
+			Str("hostname", host).
+			Msg("Someone trying to verify")
+
 		ctx.JSON(http.StatusForbidden, &dto.ResponseErr{
 			StatusCode: http.StatusForbidden,
 			Message:    "Forbidden",
