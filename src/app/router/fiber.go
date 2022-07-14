@@ -18,9 +18,10 @@ import (
 
 type FiberRouter struct {
 	*fiber.App
-	user  fiber.Router
-	auth  fiber.Router
-	file  fiber.Router
+	user    fiber.Router
+	auth    fiber.Router
+	file    fiber.Router
+	vaccine fiber.Router
 	group fiber.Router
 }
 
@@ -47,8 +48,10 @@ func NewFiberRouter(authGuard IGuard, conf config.App) *FiberRouter {
 	user := NewGroupRouteWithAuthMiddleware(r, "/user", authGuard.Use)
 	auth := NewGroupRouteWithAuthMiddleware(r, "/auth", authGuard.Use)
 	file := NewGroupRouteWithAuthMiddleware(r, "/file", authGuard.Use)
+	vaccine := NewGroupRouteWithAuthMiddleware(r, "/vaccine", authGuard.Use)
+
 	group := NewGroupRouteWithAuthMiddleware(r, "/group", authGuard.Use)
-	return &FiberRouter{r, user, auth, file, group}
+	return &FiberRouter{r, user, auth, file, vaccine}
 }
 
 func NewGroupRouteWithAuthMiddleware(r *fiber.App, path string, middleware func(ctx guard.IContext)) fiber.Router {

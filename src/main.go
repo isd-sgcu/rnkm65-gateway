@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	vaccineClient "github.com/isd-sgcu/rnkm65-gateway/src/app/client/vaccine"
 	authHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	fileHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/file"
 	grpHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/group"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/handler/health-check"
 	usrHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/user"
+	vaccineHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/vaccine"
 	guard "github.com/isd-sgcu/rnkm65-gateway/src/app/middleware/auth"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/router"
 	authSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/auth"
 	fileSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/file"
 	grpSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/group"
 	usrSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/user"
+	vaccineSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/vaccine"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/validator"
 	"github.com/isd-sgcu/rnkm65-gateway/src/config"
 	"github.com/isd-sgcu/rnkm65-gateway/src/constant/auth"
@@ -111,41 +114,46 @@ func main() {
 
 	hc := health_check.NewHandler()
 
-	uClient := proto.NewUserServiceClient(backendConn)
-	uSrv := usrSrv.NewService(uClient)
-	uHdr := usrHdr.NewHandler(uSrv, v)
+	usrClient := proto.NewUserServiceClient(backendConn)
+	userSrv := usrSrv.NewService(usrClient)
+	userHdr := usrHdr.NewHandler(userSrv, v)
 
-	aClient := proto.NewAuthServiceClient(authConn)
-	aSrv := authSrv.NewService(aClient)
-	aHdr := authHdr.NewHandler(aSrv, uSrv, v)
+	authClient := proto.NewAuthServiceClient(authConn)
+	athSrv := authSrv.NewService(authClient)
+	athHdr := authHdr.NewHandler(athSrv, userSrv, v)
 
-	fClient := proto.NewFileServiceClient(fileConn)
-	fSrv := fileSrv.NewService(fClient)
-	fHdr := fileHdr.NewHandler(fSrv, uSrv, conf.App.MaxFileSize)
+	fileClient := proto.NewFileServiceClient(fileConn)
+	fleSrv := fileSrv.NewService(fileClient)
+	fleHdr := fileHdr.NewHandler(fleSrv, userSrv, conf.App.MaxFileSize)
 
+	vacClient := vaccineClient.NewClient(conf.Vaccine)
+	vacSrv := vaccineSrv.NewService(userSrv, vacClient)
+	vacHdr := vaccineHdr.NewHandler(vacSrv, v)
 	gClient := proto.NewGroupServiceClient(backendConn)
 	gSrv := grpSrv.NewService(gClient)
 	gHdr := grpHdr.NewHandler(gSrv, v)
 
 	authGuard := guard.NewAuthGuard(aSrv, auth.ExcludePath, conf.Guard.Phase)
 
+	authGuard := guard.NewAuthGuard(athSrv, auth.ExcludePath, conf.Guard.Phase)
+
 	r := router.NewFiberRouter(&authGuard, conf.App)
 
 	r.GetHealthCheck("/", hc.HealthCheck)
 
-	r.GetUser("/:id", uHdr.FindOne)
-	r.PostUser("/", uHdr.Create)
-	r.PutUser("/:id", uHdr.Update)
-	r.PutUser("/", uHdr.CreateOrUpdate)
-	r.DeleteUser("/:id", uHdr.Delete)
+	r.GetUser("/:id", userHdr.FindOne)
+	r.PostUser("/", userHdr.Create)
+	r.PutUser("/:id", userHdr.Update)
+	r.PutUser("/", userHdr.CreateOrUpdate)
+	r.DeleteUser("/:id", userHdr.Delete)
 
-	r.GetAuth("/me", aHdr.Validate)
-	r.PostAuth("/verify", aHdr.VerifyTicket)
-	r.PostAuth("/refreshToken", aHdr.RefreshToken)
+	r.GetAuth("/me", athHdr.Validate)
+	r.PostAuth("/verify", athHdr.VerifyTicket)
+	r.PostAuth("/refreshToken", athHdr.RefreshToken)
 
-	r.PostFile("/upload", fHdr.Upload)
+	r.PostFile("/upload", fleHdr.Upload)
 
-	r.PostMethod("/vaccine/callback", uHdr.Verify)
+	r.PostVaccine("/verify", vacHdr.Verify)
 
 	r.GetGroup("/:token", gHdr.FindByToken)
 	r.PostGroup("/", gHdr.Create)
