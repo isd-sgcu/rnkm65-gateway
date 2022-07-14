@@ -46,7 +46,7 @@ func (s *Service) VerifyTicket(ticket string) (*proto.Credential, *dto.ResponseE
 					Err(err).
 					Str("service", "auth").
 					Str("module", "verify ticket").
-					Msgf("%s is trying to login (forbidden year)")
+					Msg("someone is trying to login (forbidden year)")
 				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusForbidden,
 					Message:    "Invalid study year",
@@ -58,7 +58,7 @@ func (s *Service) VerifyTicket(ticket string) (*proto.Credential, *dto.ResponseE
 					Err(err).
 					Str("service", "auth").
 					Str("module", "verify ticket").
-					Msgf("%s is trying to login")
+					Msg("someone is trying to login")
 				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusUnauthorized,
 					Message:    "Invalid ticket",
