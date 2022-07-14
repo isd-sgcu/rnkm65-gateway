@@ -650,6 +650,12 @@ const docTemplate = `{
                             "type": "bool"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseForbiddenErr"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
