@@ -23,7 +23,6 @@ type FiberRouter struct {
 	file    fiber.Router
 	group   fiber.Router
 	vaccine fiber.Router
-	group   fiber.Router
 }
 
 type IGuard interface {
