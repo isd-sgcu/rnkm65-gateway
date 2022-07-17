@@ -47,6 +47,7 @@ type IService interface {
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 404 {object} dto.ResponseNotfoundErr Not found group
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Security     AuthToken
 // @Router /group/{token} [get]
 func (h *Handler) FindByToken(ctx IContext) {
 	token, err := ctx.Param("token")

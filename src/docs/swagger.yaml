@@ -166,6 +166,7 @@ definitions:
       title:
         type: string
     required:
+    - can_select_baan
     - firstname
     - lastname
     - line_id
@@ -510,6 +511,8 @@ paths:
           description: Service Unavailable
           schema:
             $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
       summary: Get the group data by token
       tags:
       - group

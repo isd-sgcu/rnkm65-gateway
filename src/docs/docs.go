@@ -513,6 +513,11 @@ const docTemplate = `{
         },
         "/group/{token}": {
             "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
                 "description": "Return the group dto if successfully",
                 "consumes": [
                     "application/json"
@@ -1132,6 +1137,7 @@ const docTemplate = `{
         "dto.UserDto": {
             "type": "object",
             "required": [
+                "can_select_baan",
                 "firstname",
                 "lastname",
                 "line_id",
