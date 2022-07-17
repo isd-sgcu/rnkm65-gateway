@@ -17,9 +17,13 @@ type GroupHandlerTest struct {
 	suite.Suite
 	Group          *proto.Group
 	GroupDto       *dto.GroupDto
-	BindErr        *dto.ResponseErr
+	JoinRequestDto *dto.JoinGroupRequest
 	NotFoundErr    *dto.ResponseErr
 	ServiceDownErr *dto.ResponseErr
+	InvalidIdErr   *dto.ResponseErr
+	InvalidReqErr  *dto.ResponseErr
+	ForbiddenErr   *dto.ResponseErr
+	InternalErr    *dto.ResponseErr
 }
 
 func TestGroupHandler(t *testing.T) {
@@ -39,6 +43,12 @@ func (t *GroupHandlerTest) SetupTest() {
 		Token:    t.Group.Token,
 	}
 
+	t.JoinRequestDto = &dto.JoinGroupRequest{
+		UserId:   t.Group.LeaderID,
+		IsLeader: true,
+		Members:  1,
+	}
+
 	t.ServiceDownErr = &dto.ResponseErr{
 		StatusCode: http.StatusServiceUnavailable,
 		Message:    "Service is down",
@@ -51,24 +61,40 @@ func (t *GroupHandlerTest) SetupTest() {
 		Data:       nil,
 	}
 
-	t.BindErr = &dto.ResponseErr{
+	t.InvalidIdErr = &dto.ResponseErr{
 		StatusCode: http.StatusBadRequest,
-		Message:    "Invalid ID",
+		Message:    "Invalid User ID",
+		Data:       nil,
+	}
+
+	t.InvalidReqErr = &dto.ResponseErr{
+		StatusCode: http.StatusBadRequest,
+		Message:    "Invalid Request Body",
+		Data:       nil,
+	}
+
+	t.ForbiddenErr = &dto.ResponseErr{
+		StatusCode: http.StatusForbidden,
+		Message:    "Not allowed",
+		Data:       nil,
+	}
+
+	t.InternalErr = &dto.ResponseErr{
+		StatusCode: http.StatusInternalServerError,
+		Message:    "Fail to create group",
+		Data:       nil,
 	}
 }
 
 func (t *GroupHandlerTest) TestFindByTokenSuccess() {
 	want := t.Group
 
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+
 	srv := new(mock.ServiceMock)
 	srv.On("FindByToken", t.Group.Token).Return(t.Group, nil)
 
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Param").Return(t.Group.Token, nil)
-
 	v, _ := validator.NewValidator()
 
 	h := NewHandler(srv, v)
@@ -77,41 +103,14 @@ func (t *GroupHandlerTest) TestFindByTokenSuccess() {
 	assert.Equal(t.T(), want, c.V)
 }
 
-func (t *GroupHandlerTest) TestFindByTokenFoundErr() {
+func (t *GroupHandlerTest) TestFindByTokenNotFound() {
 	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
 
 	srv := new(mock.ServiceMock)
 	srv.On("FindByToken", t.Group.Token).Return(nil, t.NotFoundErr)
-
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Param").Return(t.Group.Token, nil)
-
-	v, _ := validator.NewValidator()
-
-	h := NewHandler(srv, v)
-	h.FindByToken(c)
-
-	assert.Equal(t.T(), want, c.V)
-}
-
-func (t *GroupHandlerTest) TestFindByTokenInternalErr() {
-	want := &dto.ResponseErr{
-		StatusCode: http.StatusInternalServerError,
-		Message:    "Invalid Token",
-		Data:       nil,
-	}
-
-	srv := new(mock.ServiceMock)
-	srv.On("FindByToken", t.Group.Token).Return(nil, t.ServiceDownErr)
-
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Param").Return("", errors.New("Cannot parse token"))
 
 	v, _ := validator.NewValidator()
 
@@ -124,14 +123,11 @@ func (t *GroupHandlerTest) TestFindByTokenInternalErr() {
 func (t *GroupHandlerTest) TestFindByTokenGrpcErr() {
 	want := t.ServiceDownErr
 
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+
 	srv := new(mock.ServiceMock)
 	srv.On("FindByToken", t.Group.Token).Return(nil, t.ServiceDownErr)
-
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Param").Return(t.Group.Token, nil)
 
 	v, _ := validator.NewValidator()
 
@@ -144,14 +140,63 @@ func (t *GroupHandlerTest) TestFindByTokenGrpcErr() {
 func (t *GroupHandlerTest) TestCreateSuccess() {
 	want := t.Group
 
-	srv := new(mock.ServiceMock)
-	srv.On("Create", t.GroupDto).Return(want, nil)
+	c := &mock.ContextMock{}
 
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Bind", &dto.GroupDto{}).Return(nil)
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Create", t.Group.LeaderID).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Create(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestCreateNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Create", t.Group.LeaderID).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Create(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestCreateInvalidId() {
+	want := t.InvalidIdErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return("abc")
+
+	srv := new(mock.ServiceMock)
+	srv.On("Create", "abc").Return(nil, t.InvalidIdErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Create(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestCreateInternalErr() {
+	want := t.InternalErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Create", t.Group.LeaderID).Return(nil, t.InternalErr)
 
 	v, _ := validator.NewValidator()
 
@@ -164,14 +209,11 @@ func (t *GroupHandlerTest) TestCreateSuccess() {
 func (t *GroupHandlerTest) TestCreateGrpcErr() {
 	want := t.ServiceDownErr
 
-	srv := new(mock.ServiceMock)
-	srv.On("Create", t.GroupDto).Return(nil, t.ServiceDownErr)
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
 
-	c := &mock.ContextMock{
-		Group:    t.Group,
-		GroupDto: t.GroupDto,
-	}
-	c.On("Bind", &dto.GroupDto{}).Return(nil)
+	srv := new(mock.ServiceMock)
+	srv.On("Create", t.Group.LeaderID).Return(nil, t.ServiceDownErr)
 
 	v, _ := validator.NewValidator()
 
@@ -181,198 +223,388 @@ func (t *GroupHandlerTest) TestCreateGrpcErr() {
 	assert.Equal(t.T(), want, c.V)
 }
 
-//func (t *GroupHandlerTest) TestUpdateSuccess() {
-//	want := t.Group
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Update", t.Group.Id, t.GroupDto).Return(want, nil)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//
-//	c.On("ID").Return(t.Group.Id, nil)
-//	c.On("GroupID").Return(t.Group.Id, nil)
-//	c.On("Bind", &dto.GroupDto{}).Return(nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Update(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestUpdateForbidden() {
-//	want := &dto.ResponseErr{
-//		StatusCode: http.StatusForbidden,
-//		Message:    "Insufficiency permission to update group",
-//	}
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Update", t.Group.Id, t.GroupDto).Return(nil, t.NotFoundErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(faker.UUIDDigit(), nil)
-//	c.On("GroupID").Return(t.Group.Id, nil)
-//	c.On("Bind", &dto.GroupDto{}).Return(nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Update(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestUpdateNotFound() {
-//	want := t.NotFoundErr
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Update", t.Group.Id, t.GroupDto).Return(nil, t.NotFoundErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(t.Group.Id, nil)
-//	c.On("GroupID").Return(t.Group.Id, nil)
-//	c.On("Bind", &dto.GroupDto{}).Return(nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Update(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestUpdateInvalidID() {
-//	want := &dto.ResponseErr{
-//		StatusCode: http.StatusBadRequest,
-//		Message:    "ID must be the uuid",
-//	}
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Update", t.Group.Id).Return(nil, t.NotFoundErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return("", errors.New(want.Message))
-//	c.On("GroupID").Return(t.Group.Id, nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Update(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestUpdateGrpcErr() {
-//	want := t.ServiceDownErr
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Update", t.Group.Id, t.GroupDto).Return(nil, t.ServiceDownErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(t.Group.Id, nil)
-//	c.On("GroupID").Return(t.Group.Id, nil)
-//	c.On("Bind", &dto.GroupDto{}).Return(nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Update(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
+func (t *GroupHandlerTest) TestUpdateSuccess() {
+	want := t.Group
 
-//func (t *GroupHandlerTest) TestDeleteSuccess() {
-//	srv := new(mock.ServiceMock)
-//	srv.On("Delete", t.Group.Id).Return(true, nil)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(t.Group.Id, nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Delete(c)
-//
-//	assert.True(t.T(), c.V.(bool))
-//}
-//
-//func (t *GroupHandlerTest) TestDeleteNotFound() {
-//	want := t.NotFoundErr
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Delete", t.Group.Id).Return(false, t.NotFoundErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(t.Group.Id, nil)
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Delete(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestDeleteInvalidID() {
-//	want := &dto.ResponseErr{
-//		StatusCode: http.StatusBadRequest,
-//		Message:    "ID must be the uuid",
-//	}
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Delete", t.Group.Id).Return(false, t.NotFoundErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return("", errors.New(want.Message))
-//
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Delete(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
-//
-//func (t *GroupHandlerTest) TestDeleteGrpcErr() {
-//	want := t.ServiceDownErr
-//
-//	srv := new(mock.ServiceMock)
-//	srv.On("Delete", t.Group.Id).Return(false, t.ServiceDownErr)
-//
-//	c := &mock.ContextMock{
-//		Group:    t.Group,
-//		GroupDto: t.GroupDto,
-//	}
-//	c.On("ID").Return(t.Group.Id, nil)
-//	v, _ := validator.NewValidator()
-//
-//	h := NewHandler(srv, v)
-//	h.Delete(c)
-//
-//	assert.Equal(t.T(), want, c.V)
-//}
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+	c.On("Bind", &dto.GroupDto{}).Return(t.GroupDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Update", t.GroupDto, t.Group.LeaderID).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestUpdateInvalidRequest() {
+	want := t.InvalidReqErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+	c.On("Bind", &dto.GroupDto{}).Return(nil, errors.New(t.InvalidReqErr.Message))
+
+	srv := new(mock.ServiceMock)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestUpdateNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+	c.On("Bind", &dto.GroupDto{}).Return(t.GroupDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Update", t.GroupDto, t.Group.LeaderID).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestUpdateInvalidID() {
+	want := t.InvalidIdErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return("abc")
+	c.On("Bind", &dto.GroupDto{}).Return(t.GroupDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Update", t.GroupDto, "abc").Return(nil, t.InvalidIdErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestUpdateGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+	c.On("Bind", &dto.GroupDto{}).Return(t.GroupDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Update", t.GroupDto, t.Group.LeaderID).Return(nil, t.ServiceDownErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Update(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinSuccess() {
+	want := t.Group
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(t.JoinRequestDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Join", t.Group.Token, t.JoinRequestDto.UserId, t.JoinRequestDto.IsLeader, t.JoinRequestDto.Members).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinInvalidRequest() {
+	want := t.InvalidReqErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(nil, errors.New(t.InvalidReqErr.Message))
+
+	srv := new(mock.ServiceMock)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinForbidden() {
+	want := t.ForbiddenErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(t.JoinRequestDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Join", t.Group.Token, t.JoinRequestDto.UserId, t.JoinRequestDto.IsLeader, t.JoinRequestDto.Members).Return(nil, t.ForbiddenErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinInvalidId() {
+	want := t.InvalidIdErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(t.JoinRequestDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Join", t.Group.Token, t.JoinRequestDto.UserId, t.JoinRequestDto.IsLeader, t.JoinRequestDto.Members).Return(nil, t.InvalidIdErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(t.JoinRequestDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Join", t.Group.Token, t.JoinRequestDto.UserId, t.JoinRequestDto.IsLeader, t.JoinRequestDto.Members).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestJoinGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.Token, nil)
+	c.On("Bind", &dto.JoinGroupRequest{}).Return(t.JoinRequestDto, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Join", t.Group.Token, t.JoinRequestDto.UserId, t.JoinRequestDto.IsLeader, t.JoinRequestDto.Members).Return(nil, t.ServiceDownErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Join(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestDeleteMemberSuccess() {
+	want := t.Group
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.LeaderID, nil)
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("DeleteMember", t.Group.LeaderID, t.Group.LeaderID).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.DeleteMember(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestDeleteMemberNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.LeaderID, nil)
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("DeleteMember", t.Group.LeaderID, t.Group.LeaderID).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.DeleteMember(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestDeleteMemberInvalidID() {
+	want := t.InvalidIdErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return("", errors.New(t.InvalidIdErr.Message))
+
+	srv := new(mock.ServiceMock)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.DeleteMember(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestDeleteMemberForbidden() {
+	want := t.ForbiddenErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.LeaderID, nil)
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("DeleteMember", t.Group.LeaderID, t.Group.LeaderID).Return(nil, t.ForbiddenErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.DeleteMember(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestDeleteMemberGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &mock.ContextMock{}
+	c.On("Param").Return(t.Group.LeaderID, nil)
+	c.On("UserID").Return(t.Group.LeaderID, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("DeleteMember", t.Group.LeaderID, t.Group.LeaderID).Return(nil, t.ServiceDownErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.DeleteMember(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveSuccess() {
+	want := t.Group
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", t.Group.LeaderID).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveInvalidId() {
+	want := t.InvalidIdErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return("abc")
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", "abc").Return(nil, t.InvalidIdErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", t.Group.LeaderID).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveForbidden() {
+	want := t.ForbiddenErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", t.Group.LeaderID).Return(nil, t.ForbiddenErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveInternalErr() {
+	want := t.InternalErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", t.Group.LeaderID).Return(nil, t.InternalErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestLeaveGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID)
+
+	srv := new(mock.ServiceMock)
+	srv.On("Leave", t.Group.LeaderID).Return(nil, t.ServiceDownErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.Leave(c)
+
+	assert.Equal(t.T(), want, c.V)
+}

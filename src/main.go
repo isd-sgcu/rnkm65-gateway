@@ -158,6 +158,9 @@ func main() {
 
 	r.GetGroup("/:token", gHdr.FindByToken)
 	r.PostGroup("/", gHdr.Create)
+	r.PostGroup("/:token", gHdr.Join)
+	r.DeleteGroup("/members/:member_id", gHdr.DeleteMember)
+	r.DeleteGroup("/leave", gHdr.Leave)
 
 	go func() {
 		if err := r.Listen(fmt.Sprintf(":%v", conf.App.Port)); err != nil && err != http.ErrServerClosed {

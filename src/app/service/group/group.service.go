@@ -67,18 +67,47 @@ func (s *Service) FindByToken(token string) (result *proto.Group, err *dto.Respo
 	return res.Group, nil
 }
 
-func (s *Service) Create(in *dto.GroupDto) (result *proto.Group, err *dto.ResponseErr) {
+func (s *Service) Create(id string) (result *proto.Group, err *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	grpDto := &proto.Group{
-		LeaderID: in.LeaderID,
-		Token:    in.Token,
-	}
-
-	res, errRes := s.client.Create(ctx, &proto.CreateGroupRequest{Group: grpDto})
+	res, errRes := s.client.Create(ctx, &proto.CreateGroupRequest{UserId: id})
 	if errRes != nil {
+		st, ok := status.FromError(errRes)
+		if ok {
+			switch st.Code() {
+			case codes.NotFound:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusNotFound,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.Internal:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusInternalServerError,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			default:
+				log.Error().
+					Err(errRes).
+					Str("service", "group").
+					Str("module", "findByToken").
+					Msg("Error while connecting to service")
 
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusServiceUnavailable,
+					Message:    "Service is down",
+					Data:       nil,
+				}
+			}
+		}
 		log.Error().
 			Err(errRes).
 			Str("service", "group").
@@ -95,17 +124,40 @@ func (s *Service) Create(in *dto.GroupDto) (result *proto.Group, err *dto.Respon
 	return res.Group, nil
 }
 
-func (s *Service) Update(id string, in *dto.GroupDto) (result *proto.Group, err *dto.ResponseErr) {
+func (s *Service) Update(in *dto.GroupDto, leaderId string) (result *proto.Group, err *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	grpDto := &proto.Group{
-		Id:       id,
-		LeaderID: in.LeaderID,
-		Token:    in.Token,
+	var grpMembers []*proto.User
+
+	for _, mem := range in.Members {
+		usr := &proto.User{
+			Id:              mem.ID,
+			Title:           mem.Title,
+			Firstname:       mem.Firstname,
+			Lastname:        mem.Lastname,
+			Nickname:        mem.Nickname,
+			Phone:           mem.Phone,
+			LineID:          mem.LineID,
+			Email:           mem.Email,
+			AllergyFood:     mem.AllergyFood,
+			FoodRestriction: mem.FoodRestriction,
+			AllergyMedicine: mem.AllergyMedicine,
+			Disease:         mem.Disease,
+			CanSelectBaan:   *mem.CanSelectBaan,
+			GroupId:         mem.GroupId,
+		}
+		grpMembers = append(grpMembers, usr)
 	}
 
-	res, errRes := s.client.Update(ctx, &proto.UpdateGroupRequest{Group: grpDto})
+	grpDto := &proto.Group{
+		Id:       in.ID,
+		LeaderID: in.LeaderID,
+		Token:    in.Token,
+		Members:  grpMembers,
+	}
+
+	res, errRes := s.client.Update(ctx, &proto.UpdateGroupRequest{Group: grpDto, LeaderId: leaderId})
 	if errRes != nil {
 		st, ok := status.FromError(errRes)
 		if ok {
@@ -113,6 +165,12 @@ func (s *Service) Update(id string, in *dto.GroupDto) (result *proto.Group, err 
 			case codes.NotFound:
 				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusNotFound,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
 					Message:    st.Message(),
 					Data:       nil,
 				}
@@ -146,33 +204,100 @@ func (s *Service) Update(id string, in *dto.GroupDto) (result *proto.Group, err 
 	}
 
 	return res.Group, nil
-
 }
 
-func (s *Service) Delete(id string) (result bool, err *dto.ResponseErr) {
+func (s *Service) Join(token string, userId string, isLeader bool, members int) (result *proto.Group, err *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, errRes := s.client.Delete(ctx, &proto.DeleteGroupRequest{Id: id})
+	res, errRes := s.client.Join(ctx, &proto.JoinGroupRequest{Token: token, UserId: userId, IsLeader: isLeader, Members: int32(members)})
 	if errRes != nil {
 		st, ok := status.FromError(errRes)
 		if ok {
 			switch st.Code() {
+			case codes.PermissionDenied:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusForbidden,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
+					Message:    st.Message(),
+					Data:       nil,
+				}
 			case codes.NotFound:
-				return false, &dto.ResponseErr{
+				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusNotFound,
 					Message:    st.Message(),
 					Data:       nil,
 				}
 			default:
+				log.Error().
+					Err(errRes).
+					Str("service", "group").
+					Str("module", "update").
+					Msg("Error while connecting to service")
 
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusServiceUnavailable,
+					Message:    "Service is down",
+					Data:       nil,
+				}
+			}
+		}
+		log.Error().
+			Err(errRes).
+			Str("service", "group").
+			Str("module", "delete").
+			Msg("Error while connecting to service")
+
+		return nil, &dto.ResponseErr{
+			StatusCode: http.StatusServiceUnavailable,
+			Message:    "Service is down",
+			Data:       nil,
+		}
+	}
+
+	return res.Group, nil
+}
+
+func (s *Service) DeleteMember(userId string, leaderId string) (result *proto.Group, err *dto.ResponseErr) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, errRes := s.client.DeleteMember(ctx, &proto.DeleteMemberGroupRequest{UserId: userId, LeaderId: leaderId})
+	if errRes != nil {
+		st, ok := status.FromError(errRes)
+		if ok {
+			switch st.Code() {
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.NotFound:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusNotFound,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.PermissionDenied:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusForbidden,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			default:
 				log.Error().
 					Err(errRes).
 					Str("service", "group").
 					Str("module", "delete").
 					Msg("Error while connecting to service")
 
-				return false, &dto.ResponseErr{
+				return nil, &dto.ResponseErr{
 					StatusCode: http.StatusServiceUnavailable,
 					Message:    "Service is down",
 					Data:       nil,
@@ -186,13 +311,75 @@ func (s *Service) Delete(id string) (result bool, err *dto.ResponseErr) {
 			Str("module", "delete").
 			Msg("Error while connecting to service")
 
-		return false, &dto.ResponseErr{
+		return nil, &dto.ResponseErr{
 			StatusCode: http.StatusServiceUnavailable,
 			Message:    "Service is down",
 			Data:       nil,
 		}
 	}
 
-	return res.Success, nil
+	return res.Group, nil
+}
 
+func (s *Service) Leave(userId string) (result *proto.Group, err *dto.ResponseErr) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, errRes := s.client.Leave(ctx, &proto.LeaveGroupRequest{UserId: userId})
+	if errRes != nil {
+		st, ok := status.FromError(errRes)
+		if ok {
+			switch st.Code() {
+			case codes.PermissionDenied:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusForbidden,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.NotFound:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusNotFound,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.Internal:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusInternalServerError,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			default:
+				log.Error().
+					Err(errRes).
+					Str("service", "group").
+					Str("module", "update").
+					Msg("Error while connecting to service")
+
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusServiceUnavailable,
+					Message:    "Service is down",
+					Data:       nil,
+				}
+			}
+		}
+		log.Error().
+			Err(errRes).
+			Str("service", "group").
+			Str("module", "delete").
+			Msg("Error while connecting to service")
+
+		return nil, &dto.ResponseErr{
+			StatusCode: http.StatusServiceUnavailable,
+			Message:    "Service is down",
+			Data:       nil,
+		}
+	}
+
+	return res.Group, nil
 }

@@ -19,9 +19,16 @@ func (r *FiberRouter) PostGroup(path string, h func(ctx group.IContext)) {
 	})
 }
 
-//func (r *FiberRouter) PutGroup(path string, h func(ctx group.IContext)) {
-//	r.group.Put(path, func(c *FiberCtx) error {
-//		h(NewFiberCtx(c))
-//		return nil
-//	})
-//}
+func (r *FiberRouter) PutGroup(path string, h func(ctx group.IContext)) {
+	r.group.Put(path, func(c *fiber.Ctx) error {
+		h(NewFiberCtx(c))
+		return nil
+	})
+}
+
+func (r *FiberRouter) DeleteGroup(path string, h func(ctx group.IContext)) {
+	r.group.Delete(path, func(c *fiber.Ctx) error {
+		h(NewFiberCtx(c))
+		return nil
+	})
+}

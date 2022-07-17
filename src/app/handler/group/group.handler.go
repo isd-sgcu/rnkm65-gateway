@@ -24,24 +24,26 @@ type IContext interface {
 	JSON(int, interface{})
 	ID() (string, error)
 	Param(string) (string, error)
+	UserID() string
 }
 
 type IService interface {
 	FindByToken(string) (*proto.Group, *dto.ResponseErr)
-	Create(groupDto *dto.GroupDto) (*proto.Group, *dto.ResponseErr)
-	//Update(string, *dto.GroupDto) (*proto.Group, *dto.ResponseErr)
-	//Delete(string) (bool, *dto.ResponseErr)
+	Create(id string) (*proto.Group, *dto.ResponseErr)
+	Update(*dto.GroupDto, string) (*proto.Group, *dto.ResponseErr)
+	Join(string, string, bool, int) (*proto.Group, *dto.ResponseErr)
+	DeleteMember(string, string) (*proto.Group, *dto.ResponseErr)
+	Leave(string) (*proto.Group, *dto.ResponseErr)
 }
 
 // FindByToken is a function that get the group data by token
 // @Summary Get the group data by token
 // @Description Return the group dto if successfully
-// @Param id path string true "id"
+// @Param token path string true "id"
 // @Tags group
 // @Accept json
 // @Produce json
 // @Success 200 {object} proto.Group
-// @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 404 {object} dto.ResponseNotfoundErr Not found group
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
@@ -70,28 +72,22 @@ func (h *Handler) FindByToken(ctx IContext) {
 // Create is a function that create new group
 // @Summary Create new group
 // @Description Return the group dto if successfully
-// @Param group body dto.GroupDto true "Group DTO"
+// @Param groupDto body dto.GroupDto true "Group dto"
 // @Tags group
 // @Accept json
 // @Produce json
 // @Success 201 {object} proto.Group
-// @Failure 400 {object} dto.ResponseBadRequestErr Invalid request body
+// @Failure 400 {object} dto.ResponseBadRequestErr Invalid ID
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
-// @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to create group
-// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 404 {object} dto.ResponseNotfoundErr Not found user
+// @Failure 500 {object} dto.ResponseInternalErr Internal error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
 // @Security     AuthToken
 // @Router /group [post]
 func (h *Handler) Create(ctx IContext) {
-	grpDto := dto.GroupDto{}
+	userId := ctx.UserID()
 
-	err := ctx.Bind(&grpDto)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	group, errRes := h.service.Create(&grpDto)
+	group, errRes := h.service.Create(userId)
 	if errRes != nil {
 		ctx.JSON(errRes.StatusCode, errRes)
 		return
@@ -104,8 +100,132 @@ func (h *Handler) Create(ctx IContext) {
 // Update is a function that update the group
 // @Summary Update the existing group
 // @Description Return the group dto if successfully
-// @Param id path string true "id"
-// @Param group body dto.GroupDto true "group dto"
+// @Param groupDto body dto.GroupDto true "Group dto"
+// @Tags group
+// @Accept json
+// @Produce json
+// @Success 200 {object} proto.Group
+// @Failure 400 {object} dto.ResponseBadRequestErr Invalid request body or ID
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to update user
+// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Security     AuthToken
+// @Router /group [put]
+func (h *Handler) Update(ctx IContext) {
+	userId := ctx.UserID()
+
+	grpDto := &dto.GroupDto{}
+	err := ctx.Bind(grpDto)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid Request Body",
+			Data:       nil,
+		})
+		return
+	}
+
+	group, errRes := h.service.Update(grpDto, userId)
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, group)
+	return
+}
+
+// Join is a function for user to join the group
+// @Summary Join the existing group
+// @Description Return the group dto if successfully
+// @Param token path string true "token"
+// @Param joinRequest body dto.JoinGroupRequest true "joinGroupRequest dto"
+// @Tags group
+// @Accept json
+// @Produce json
+// @Success 200 {object} proto.Group
+// @Failure 400 {object} dto.ResponseBadRequestErr Invalid ID or Request Body
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to update user
+// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Security     AuthToken
+// @Router /group/{token} [post]
+func (h *Handler) Join(ctx IContext) {
+	token, err := ctx.Param("token")
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, &dto.ResponseErr{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Invalid Token",
+			Data:       nil,
+		})
+		return
+	}
+
+	joinRequest := &dto.JoinGroupRequest{}
+	err = ctx.Bind(joinRequest)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid Request Body",
+			Data:       nil,
+		})
+		return
+	}
+
+	group, errRes := h.service.Join(token, joinRequest.UserId, joinRequest.IsLeader, joinRequest.Members)
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, group)
+	return
+
+}
+
+// DeleteMember is a function that delete member from the group
+// @Summary Delete member from the group
+// @Description Return the group dto if successfully
+// @Param member_id path string true "id"
+// @Tags group
+// @Accept json
+// @Produce json
+// @Success 200 {object} proto.Group
+// @Failure 400 {object} dto.ResponseBadRequestErr Invalid ID
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to delete group
+// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Security     AuthToken
+// @Router /group/members/{member_id} [delete]
+func (h *Handler) DeleteMember(ctx IContext) {
+	userId, err := ctx.Param("id")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid User ID",
+			Data:       nil,
+		})
+		return
+	}
+
+	leaderId := ctx.UserID()
+
+	group, errRes := h.service.DeleteMember(userId, leaderId)
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, group)
+	return
+}
+
+// Leave is a function for to leave the group
+// @Summary Leave the existing group and Create a new group
+// @Description Return the group dto if successfully
 // @Tags group
 // @Accept json
 // @Produce json
@@ -114,78 +234,19 @@ func (h *Handler) Create(ctx IContext) {
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to update user
 // @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 500 {object} dto.ResponseInternalErr Internal error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
 // @Security     AuthToken
-// @Router /group/{id} [put]
-//func (h *Handler) Update(ctx IContext) {
-//	id, err := ctx.ID()
-//	if err != nil {
-//		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
-//			StatusCode: http.StatusBadRequest,
-//			Message:    err.Error(),
-//		})
-//		return
-//	}
-//
-//	grpId := ctx.GroupID()
-//	if grpId != id {
-//		ctx.JSON(http.StatusForbidden, &dto.ResponseErr{
-//			StatusCode: http.StatusForbidden,
-//			Message:    "Insufficiency permission to update group",
-//		})
-//		return
-//	}
-//
-//	grpDto := dto.GroupDto{}
-//
-//	err = ctx.Bind(&grpDto)
-//	if err != nil {
-//		ctx.JSON(http.StatusBadRequest, err)
-//		return
-//	}
-//
-//	group, errRes := h.service.Update(id, &grpDto)
-//	if errRes != nil {
-//		ctx.JSON(errRes.StatusCode, errRes)
-//		return
-//	}
-//
-//	ctx.JSON(http.StatusOK, group)
-//	return
-//}
+// @Router /group/leave [post]
+func (h *Handler) Leave(ctx IContext) {
+	userId := ctx.UserID()
 
-// Delete is a function that delete the group
-// @Summary Delete the group
-// @Description Return the group dto if successfully
-// @Param id path string true "id"
-// @Tags group
-// @Accept json
-// @Produce json
-// @Success 200 {bool} true
-// @Failure 400 {object} dto.ResponseBadRequestErr Invalid ID
-// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
-// @Failure 403 {object} dto.ResponseForbiddenErr Insufficiency permission to delete group
-// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
-// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
-// @Security     AuthToken
-// @Router /group/members/{id} [delete]
-//func (h *Handler) Delete(ctx IContext) {
-//	id, err := ctx.ID()
-//	if err != nil {
-//		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
-//			StatusCode: http.StatusBadRequest,
-//			Message:    err.Error(),
-//			Data:       nil,
-//		})
-//		return
-//	}
-//
-//	group, errRes := h.service.Delete(id)
-//	if errRes != nil {
-//		ctx.JSON(errRes.StatusCode, errRes)
-//		return
-//	}
-//
-//	ctx.JSON(http.StatusOK, group)
-//	return
-//}
+	group, errRes := h.service.Leave(userId)
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, group)
+	return
+}
