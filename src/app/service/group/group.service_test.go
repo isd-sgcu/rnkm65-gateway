@@ -109,6 +109,58 @@ func (t *GroupServiceTest) SetupTest() {
 	}
 }
 
+func (t *GroupServiceTest) TestFindOneSuccess() {
+	want := t.Group
+
+	c := &group.ClientMock{}
+	c.On("FindOne", &proto.FindOneGroupRequest{Id: t.User.Id}).Return(&proto.FindOneGroupResponse{Group: t.Group}, nil)
+
+	srv := NewService(c)
+	actual, err := srv.FindOne(t.User.Id)
+
+	assert.Nil(t.T(), err)
+	assert.Equal(t.T(), want, actual)
+}
+
+func (t *GroupServiceTest) TestFindOneNotFound() {
+	want := t.NotFoundErr
+
+	c := &group.ClientMock{}
+	c.On("FindOne", &proto.FindOneGroupRequest{Id: t.User.Id}).Return(nil, status.Error(codes.NotFound, "Group not found"))
+
+	srv := NewService(c)
+	actual, err := srv.FindOne(t.User.Id)
+
+	assert.Nil(t.T(), actual)
+	assert.Equal(t.T(), want, err)
+}
+
+func (t *GroupServiceTest) TestFindOneInvalidId() {
+	want := t.InvalidIdErr
+
+	c := &group.ClientMock{}
+	c.On("FindOne", &proto.FindOneGroupRequest{Id: "abc"}).Return(nil, status.Error(codes.InvalidArgument, "Invalid user id"))
+
+	srv := NewService(c)
+	actual, err := srv.FindOne("abc")
+
+	assert.Nil(t.T(), actual)
+	assert.Equal(t.T(), want, err)
+}
+
+func (t *GroupServiceTest) TestFindOneGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &group.ClientMock{}
+	c.On("FindOne", &proto.FindOneGroupRequest{Id: t.User.Id}).Return(nil, errors.New("Service is down"))
+
+	srv := NewService(c)
+	actual, err := srv.FindOne(t.User.Id)
+
+	assert.Nil(t.T(), actual)
+	assert.Equal(t.T(), want, err)
+}
+
 func (t *GroupServiceTest) TestFindByTokenSuccess() {
 	want := t.Group
 

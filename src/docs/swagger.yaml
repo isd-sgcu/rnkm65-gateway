@@ -395,6 +395,34 @@ paths:
       tags:
       - file
   /group:
+    get:
+      consumes:
+      - application/json
+      description: Return the group dto if successfully
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.Group'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ResponseNotfoundErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
+      summary: Get the group data
+      tags:
+      - group
     post:
       consumes:
       - application/json
@@ -487,7 +515,7 @@ paths:
       - application/json
       description: Return the group dto if successfully
       parameters:
-      - description: id
+      - description: token
         in: path
         name: token
         required: true
@@ -602,7 +630,7 @@ paths:
             $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
-      summary: Leave the existing group and Create a new group
+      summary: Leave the current group and Create a new group
       tags:
       - group
   /group/members/{member_id}:
@@ -611,7 +639,7 @@ paths:
       - application/json
       description: Return the group dto if successfully
       parameters:
-      - description: id
+      - description: member_id
         in: path
         name: member_id
         required: true

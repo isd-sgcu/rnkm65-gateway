@@ -12,6 +12,19 @@ type ServiceMock struct {
 	mock.Mock
 }
 
+func (s *ServiceMock) FindOne(id string) (result *proto.Group, err *dto.ResponseErr) {
+	args := s.Called(id)
+
+	if args.Get(0) != nil {
+		result = args.Get(0).(*proto.Group)
+	}
+
+	if args.Get(1) != nil {
+		err = args.Get(1).(*dto.ResponseErr)
+	}
+	return
+}
+
 func (s *ServiceMock) FindByToken(token string) (result *proto.Group, err *dto.ResponseErr) {
 	args := s.Called(token)
 
@@ -98,6 +111,16 @@ func (s *ServiceMock) Leave(userId string) (result *proto.Group, err *dto.Respon
 
 type ClientMock struct {
 	mock.Mock
+}
+
+func (c *ClientMock) FindOne(_ context.Context, in *proto.FindOneGroupRequest, _ ...grpc.CallOption) (res *proto.FindOneGroupResponse, err error) {
+	args := c.Called(in)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.FindOneGroupResponse)
+	}
+
+	return res, args.Error(1)
 }
 
 func (c *ClientMock) FindByToken(_ context.Context, in *proto.FindByTokenGroupRequest, _ ...grpc.CallOption) (res *proto.FindByTokenGroupResponse, err error) {

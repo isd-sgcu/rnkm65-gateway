@@ -86,6 +86,57 @@ func (t *GroupHandlerTest) SetupTest() {
 	}
 }
 
+func (t *GroupHandlerTest) TestFindOneSuccess() {
+	want := t.Group
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("FindOne", t.Group.LeaderID).Return(t.Group, nil)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.FindOne(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestFindOneNotFound() {
+	want := t.NotFoundErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("FindOne", t.Group.LeaderID).Return(nil, t.NotFoundErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.FindOne(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *GroupHandlerTest) TestFindOneGrpcErr() {
+	want := t.ServiceDownErr
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.Group.LeaderID, nil)
+
+	srv := new(mock.ServiceMock)
+	srv.On("FindOne", t.Group.LeaderID).Return(nil, t.ServiceDownErr)
+
+	v, _ := validator.NewValidator()
+
+	h := NewHandler(srv, v)
+	h.FindOne(c)
+
+	assert.Equal(t.T(), want, c.V)
+}
+
 func (t *GroupHandlerTest) TestFindByTokenSuccess() {
 	want := t.Group
 

@@ -21,6 +21,58 @@ func NewService(client proto.GroupServiceClient) *Service {
 	}
 }
 
+func (s *Service) FindOne(id string) (result *proto.Group, err *dto.ResponseErr) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, errRes := s.client.FindOne(ctx, &proto.FindOneGroupRequest{Id: id})
+	if errRes != nil {
+		st, ok := status.FromError(errRes)
+		if ok {
+			switch st.Code() {
+			case codes.NotFound:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusNotFound,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			case codes.InvalidArgument:
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusBadRequest,
+					Message:    st.Message(),
+					Data:       nil,
+				}
+			default:
+
+				log.Error().
+					Err(errRes).
+					Str("service", "group").
+					Str("module", "findByToken").
+					Msg("Error while connecting to service")
+
+				return nil, &dto.ResponseErr{
+					StatusCode: http.StatusServiceUnavailable,
+					Message:    "Service is down",
+					Data:       nil,
+				}
+			}
+		}
+		log.Error().
+			Err(errRes).
+			Str("service", "group").
+			Str("module", "findByToken").
+			Msg("Error while connecting to service")
+
+		return nil, &dto.ResponseErr{
+			StatusCode: http.StatusServiceUnavailable,
+			Message:    "Service is down",
+			Data:       nil,
+		}
+	}
+
+	return res.Group, nil
+}
+
 func (s *Service) FindByToken(token string) (result *proto.Group, err *dto.ResponseErr) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

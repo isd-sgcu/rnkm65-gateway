@@ -245,6 +245,50 @@ const docTemplate = `{
             }
         },
         "/group": {
+            "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "description": "Return the group dto if successfully",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "Get the group data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.Group"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseNotfoundErr"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -397,7 +441,7 @@ const docTemplate = `{
                 "tags": [
                     "group"
                 ],
-                "summary": "Leave the existing group and Create a new group",
+                "summary": "Leave the current group and Create a new group",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -465,7 +509,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id",
+                        "description": "member_id",
                         "name": "member_id",
                         "in": "path",
                         "required": true
@@ -532,7 +576,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id",
+                        "description": "token",
                         "name": "token",
                         "in": "path",
                         "required": true

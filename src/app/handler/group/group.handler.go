@@ -28,6 +28,7 @@ type IContext interface {
 }
 
 type IService interface {
+	FindOne(string) (*proto.Group, *dto.ResponseErr)
 	FindByToken(string) (*proto.Group, *dto.ResponseErr)
 	Create(id string) (*proto.Group, *dto.ResponseErr)
 	Update(*dto.GroupDto, string) (*proto.Group, *dto.ResponseErr)
@@ -36,10 +37,35 @@ type IService interface {
 	Leave(string) (*proto.Group, *dto.ResponseErr)
 }
 
+// FindOne is a function that get the group data
+// @Summary Get the group data
+// @Description Return the group dto if successfully
+// @Tags group
+// @Accept json
+// @Produce json
+// @Success 200 {object} proto.Group
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 404 {object} dto.ResponseNotfoundErr Not found group
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Security     AuthToken
+// @Router /group [get]
+func (h *Handler) FindOne(ctx IContext) {
+	userId := ctx.UserID()
+
+	group, errRes := h.service.FindOne(userId)
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, group)
+	return
+}
+
 // FindByToken is a function that get the group data by token
 // @Summary Get the group data by token
 // @Description Return the group dto if successfully
-// @Param token path string true "id"
+// @Param token path string true "token"
 // @Tags group
 // @Accept json
 // @Produce json
@@ -189,7 +215,7 @@ func (h *Handler) Join(ctx IContext) {
 // DeleteMember is a function that delete member from the group
 // @Summary Delete member from the group
 // @Description Return the group dto if successfully
-// @Param member_id path string true "id"
+// @Param member_id path string true "member_id"
 // @Tags group
 // @Accept json
 // @Produce json
@@ -202,7 +228,7 @@ func (h *Handler) Join(ctx IContext) {
 // @Security     AuthToken
 // @Router /group/members/{member_id} [delete]
 func (h *Handler) DeleteMember(ctx IContext) {
-	userId, err := ctx.Param("id")
+	userId, err := ctx.Param("member_id")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, &dto.ResponseErr{
 			StatusCode: http.StatusBadRequest,
@@ -225,7 +251,7 @@ func (h *Handler) DeleteMember(ctx IContext) {
 }
 
 // Leave is a function for to leave the group
-// @Summary Leave the existing group and Create a new group
+// @Summary Leave the current group and Create a new group
 // @Description Return the group dto if successfully
 // @Tags group
 // @Accept json

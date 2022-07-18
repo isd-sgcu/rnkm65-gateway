@@ -156,6 +156,7 @@ func main() {
 
 	r.PostVaccine("/verify", vacHdr.Verify)
 
+	r.GetGroup("/", gHdr.FindOne)
 	r.GetGroup("/:token", gHdr.FindByToken)
 	r.PostGroup("/", gHdr.Create)
 	r.PostGroup("/:token", gHdr.Join)
