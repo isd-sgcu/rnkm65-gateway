@@ -5,7 +5,6 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/utils"
 	role "github.com/isd-sgcu/rnkm65-gateway/src/constant/auth"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"strings"
 )
@@ -88,12 +87,6 @@ func (m *Guard) CheckConfig(ctx IContext) {
 	method := ctx.Method()
 	path := ctx.Path()
 
-	log.Info().
-		Str("service", "authmiddleware").
-		Str("module", "CheckConfig").
-		Str("path", path).
-		Msg("Before check config the path")
-
 	//check whether there is a token in path
 	//if token exist, replace token with ":token"
 	pathSlice := strings.Split(path, "/")
@@ -108,11 +101,7 @@ func (m *Guard) CheckConfig(ctx IContext) {
 	ids := utils.FindIDFromPath(path)
 
 	path = utils.FormatPath(method, path, ids)
-	log.Info().
-		Str("service", "authmiddleware").
-		Str("module", "CheckConfig").
-		Str("path", path).
-		Msg("After check config the path")
+
 	if utils.IsExisted(m.excludes, path) {
 		ctx.Next()
 		return
