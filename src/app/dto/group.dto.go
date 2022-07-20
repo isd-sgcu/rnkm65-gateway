@@ -9,7 +9,7 @@ type GroupDto struct {
 
 type UserInfo struct {
 	ID        string `json:"id" validate:"uuid_optional"`
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	ImageUrl  string `json:"image_url"`
+	Firstname string `json:"firstname" validate:"required"`
+	Lastname  string `json:"lastname" validate:"required"`
+	ImageUrl  string `json:"image_url" validate:"required"`
 }
