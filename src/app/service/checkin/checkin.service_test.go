@@ -6,6 +6,7 @@ import (
 
 	"github.com/bxcodec/faker/v3"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
+	cst "github.com/isd-sgcu/rnkm65-gateway/src/constant/checkin"
 	"github.com/isd-sgcu/rnkm65-gateway/src/mocks/checkin"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/stretchr/testify/assert"
@@ -72,13 +73,13 @@ func (t *CheckinServiceTest) SetupTest() {
 func (t *CheckinServiceTest) TestCheckinVerifySuccess() {
 	want := &proto.CheckinVerifyResponse{
 		CheckinToken: t.Token,
-		CheckinType:  "check_in",
+		CheckinType:  cst.CHECKIN,
 	}
 
 	c := &checkin.ClientMock{}
 	c.On("CheckinVerify", &proto.CheckinVerifyRequest{Id: t.User.Id, EventType: 0}).Return(&proto.CheckinVerifyResponse{
 		CheckinToken: t.Token,
-		CheckinType:  "check_in",
+		CheckinType:  cst.CHECKIN,
 	}, nil)
 
 	serv := NewService(c)
@@ -157,7 +158,7 @@ func (t *CheckinServiceTest) TestCheckinConfirmInvalidCheckinType() {
 
 func (t *CheckinServiceTest) TestCheckinConfirmInvalidToken() {
 	c := &checkin.ClientMock{}
-	c.On("CheckinConfirm", &proto.CheckinConfirmRequest{Token: t.Token}).Return(nil, status.Error(codes.Unauthenticated, "Invalid token"))
+	c.On("CheckinConfirm", &proto.CheckinConfirmRequest{Token: t.Token}).Return(nil, status.Error(codes.PermissionDenied, "Invalid token"))
 
 	serv := NewService(c)
 
@@ -165,7 +166,7 @@ func (t *CheckinServiceTest) TestCheckinConfirmInvalidToken() {
 
 	assert.Nil(t.T(), actual)
 	assert.Equal(t.T(), &dto.ResponseErr{
-		StatusCode: http.StatusUnauthorized,
+		StatusCode: http.StatusForbidden,
 		Message:    "Invalid Token",
 		Data:       nil,
 	}, err)

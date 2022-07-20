@@ -131,9 +131,9 @@ func (s *Service) CheckinConfirm(token string) (*proto.CheckinConfirmResponse, *
 				Message:    "Invalid Checkin type",
 				Data:       nil,
 			}
-		case codes.Unauthenticated:
+		case codes.PermissionDenied:
 			return nil, &dto.ResponseErr{
-				StatusCode: http.StatusUnauthorized,
+				StatusCode: http.StatusForbidden,
 				Message:    "Invalid Token",
 				Data:       nil,
 			}

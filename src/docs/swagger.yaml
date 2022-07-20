@@ -15,6 +15,16 @@ definitions:
   dto.CheckinVerifyRequest:
     properties:
       event_type:
+        example: 1
+        type: integer
+    type: object
+  dto.CheckinVerifyResponse:
+    properties:
+      checkin_token:
+        example: ec5b9355-0b6c-11ed-b88b-0250cf8509e4
+        type: string
+      checkin_type:
+        example: 1
         type: integer
     type: object
   dto.Credential:
@@ -242,6 +252,11 @@ definitions:
       nameTH:
         type: string
     type: object
+  proto.CheckinConfirmResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   proto.FindByTokenGroupResponse:
     properties:
       id:
@@ -324,9 +339,7 @@ info:
   contact:
     email: sd.team.sgcu@gmail.com
     name: ISD Team
-  description: |-
-    # RNKM API
-    This is the documentation for https://freshersfairs.com
+  description: "# RNKM API\r\nThis is the documentation for https://freshersfairs.com"
   title: RNKM Backend
   version: "1.0"
 paths:
@@ -794,7 +807,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: OK
+            $ref: '#/definitions/proto.CheckinConfirmResponse'
         "400":
           description: Bad Request
           schema:
@@ -803,6 +816,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ResponseForbiddenErr'
         "500":
           description: Internal Server Error
           schema:
@@ -820,7 +837,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: get token by providing id
+      description: get token by providing id return object has checkin type as enum
+        (not to be confused with event type) 1 is checkin, 2 is checkout
       parameters:
       - description: event type (1 is Main event, 2 is Freshy Night)
         in: body
@@ -834,7 +852,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: OK
+            $ref: '#/definitions/dto.CheckinVerifyResponse'
         "400":
           description: Bad Request
           schema:
@@ -1096,35 +1114,20 @@ tags:
     description: Chula SSO documentation
     url: https://account.it.chula.ac.th/wiki/doku.php?id=how_does_it_work
   name: Chula SSO
-- description: |-
-    # Health Check Tag API Documentation
-    **Health Check** functions goes here
+- description: "# Health Check Tag API Documentation\r\n**Health Check** functions
+    goes here"
   name: health check
-- description: |-
-    # Vaccine Tag API Documentation
-    **Vaccine** functions goes here
+- description: "# Vaccine Tag API Documentation\r\n**Vaccine** functions goes here"
   name: vaccine
-- description: |-
-    # Auth Tag API Documentation
-    **Auth** functions goes here
+- description: "# Auth Tag API Documentation\r\n**Auth** functions goes here"
   name: auth
-- description: |-
-    # User Tag API Documentation
-    **User** functions goes here
+- description: "# User Tag API Documentation\r\n**User** functions goes here"
   name: user
-- description: |-
-    # File Tag API Documentation
-    **File** functions goes here
+- description: "# File Tag API Documentation\r\n**File** functions goes here"
   name: file
-- description: |-
-    # Group Tag API Documentation
-    **Group** functions goes here
+- description: "# Group Tag API Documentation\r\n**Group** functions goes here"
   name: group
-- description: |-
-    # Baan Tag API Documentation
-    **Baan** functions goes here
+- description: "# Baan Tag API Documentation\r\n**Baan** functions goes here"
   name: baan
-- description: |-
-    # Event Tag API Documentation
-    **Event** functions goes here
+- description: "# Event Tag API Documentation\r\n**Event** functions goes here"
   name: event

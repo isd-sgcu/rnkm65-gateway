@@ -8,6 +8,7 @@ import (
 	"github.com/bxcodec/faker/v3"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/validator"
+	cst "github.com/isd-sgcu/rnkm65-gateway/src/constant/checkin"
 	mock "github.com/isd-sgcu/rnkm65-gateway/src/mocks/checkin"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,7 @@ type CheckinHandlerTest struct {
 	ServiceDownErr *dto.ResponseErr
 	Token          string
 	EventType      int
-	CheckinType    string
+	CheckinType    int32
 }
 
 func TestCheckinHandler(t *testing.T) {
@@ -63,7 +64,7 @@ func (t *CheckinHandlerTest) SetupTest() {
 
 	t.Token = faker.UUIDDigit()
 	t.EventType = 5
-	t.CheckinType = "check_in"
+	t.CheckinType = cst.CHECKIN
 }
 
 func (t *CheckinHandlerTest) TestCheckinVerifySuccess() {

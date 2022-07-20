@@ -122,14 +122,6 @@ func main() {
 			Msg("Cannot connect to service")
 	}
 
-	checkinConn, err := grpc.Dial(conf.Service.Backend, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Str("service", "rnkm-checkin").
-			Msg("Cannot connect to service")
-	}
-
 	hc := health_check.NewHandler()
 
 	usrClient := proto.NewUserServiceClient(backendConn)
@@ -155,11 +147,10 @@ func main() {
 	bnSrv := baanSrv.NewService(bnClient)
 	bnHdr := baanHdr.NewHandler(bnSrv)
 
-	checkinClient := proto.NewCheckinServiceClient(checkinConn)
+	checkinClient := proto.NewCheckinServiceClient(backendConn)
 	checkinSrv := ciSrv.NewService(checkinClient)
 
 	qrHandler := qrHdr.NewHandler(checkinSrv, v)
-
 	authGuard := guard.NewAuthGuard(athSrv, auth.ExcludePath, conf.App)
 
 	r := router.NewFiberRouter(&authGuard, conf.App)

@@ -18,7 +18,7 @@ message CheckinVerifyRequest{
 
 message CheckinVerifyResponse{
   string checkin_token = 1;
-  string checkin_type = 2;
+  int32 checkin_type = 2;
 }
 
 // Checkin Confirm

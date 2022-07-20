@@ -750,7 +750,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "OK"
+                            "$ref": "#/definitions/proto.CheckinConfirmResponse"
                         }
                     },
                     "400": {
@@ -763,6 +763,12 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseForbiddenErr"
                         }
                     },
                     "500": {
@@ -787,7 +793,7 @@ const docTemplate = `{
                         "AuthToken": []
                     }
                 ],
-                "description": "get token by providing id",
+                "description": "get token by providing id return object has checkin type as enum (not to be confused with event type) 1 is checkin, 2 is checkout",
                 "consumes": [
                     "application/json"
                 ],
@@ -813,7 +819,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "OK"
+                            "$ref": "#/definitions/dto.CheckinVerifyResponse"
                         }
                     },
                     "400": {
@@ -1220,7 +1226,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "event_type": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.CheckinVerifyResponse": {
+            "type": "object",
+            "properties": {
+                "checkin_token": {
+                    "type": "string",
+                    "example": "ec5b9355-0b6c-11ed-b88b-0250cf8509e4"
+                },
+                "checkin_type": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -1555,6 +1575,14 @@ const docTemplate = `{
                 }
             }
         },
+        "proto.CheckinConfirmResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "proto.FindByTokenGroupResponse": {
             "type": "object",
             "properties": {
@@ -1692,35 +1720,35 @@ const docTemplate = `{
             }
         },
         {
-            "description": "# Health Check Tag API Documentation\n**Health Check** functions goes here",
+            "description": "# Health Check Tag API Documentation\r\n**Health Check** functions goes here",
             "name": "health check"
         },
         {
-            "description": "# Vaccine Tag API Documentation\n**Vaccine** functions goes here",
+            "description": "# Vaccine Tag API Documentation\r\n**Vaccine** functions goes here",
             "name": "vaccine"
         },
         {
-            "description": "# Auth Tag API Documentation\n**Auth** functions goes here",
+            "description": "# Auth Tag API Documentation\r\n**Auth** functions goes here",
             "name": "auth"
         },
         {
-            "description": "# User Tag API Documentation\n**User** functions goes here",
+            "description": "# User Tag API Documentation\r\n**User** functions goes here",
             "name": "user"
         },
         {
-            "description": "# File Tag API Documentation\n**File** functions goes here",
+            "description": "# File Tag API Documentation\r\n**File** functions goes here",
             "name": "file"
         },
         {
-            "description": "# Group Tag API Documentation\n**Group** functions goes here",
+            "description": "# Group Tag API Documentation\r\n**Group** functions goes here",
             "name": "group"
         },
         {
-            "description": "# Baan Tag API Documentation\n**Baan** functions goes here",
+            "description": "# Baan Tag API Documentation\r\n**Baan** functions goes here",
             "name": "baan"
         },
         {
-            "description": "# Event Tag API Documentation\n**Event** functions goes here",
+            "description": "# Event Tag API Documentation\r\n**Event** functions goes here",
             "name": "event"
         }
     ]
@@ -1733,7 +1761,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{"https", "http"},
 	Title:            "RNKM Backend",
-	Description:      "# RNKM API\nThis is the documentation for https://freshersfairs.com",
+	Description:      "# RNKM API\r\nThis is the documentation for https://freshersfairs.com",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }
