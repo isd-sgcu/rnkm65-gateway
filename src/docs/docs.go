@@ -395,7 +395,7 @@ const docTemplate = `{
             }
         },
         "/group/leave": {
-            "post": {
+            "delete": {
                 "security": [
                     {
                         "AuthToken": []
