@@ -3,18 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	
 	vaccineClient "github.com/isd-sgcu/rnkm65-gateway/src/app/client/vaccine"
 	authHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	baanHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/baan"
 	fileHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/file"
 	grpHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/group"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/handler/health-check"
+	qrHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/qr"
 	usrHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/user"
 	vaccineHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/vaccine"
 	guard "github.com/isd-sgcu/rnkm65-gateway/src/app/middleware/auth"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/router"
 	authSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/auth"
 	baanSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/baan"
+	ciSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/checkin"
 	fileSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/file"
 	grpSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/group"
 	usrSrv "github.com/isd-sgcu/rnkm65-gateway/src/app/service/user"
@@ -114,6 +117,14 @@ func main() {
 			Msg("Cannot connect to service")
 	}
 
+	checkinConn, err := grpc.Dial(conf.Service.Checkin, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal().
+			Err(err).
+			Str("service", "rnkm-checkin").
+			Msg("Cannot connect to service")
+	}
+
 	hc := health_check.NewHandler()
 
 	usrClient := proto.NewUserServiceClient(backendConn)
@@ -138,6 +149,11 @@ func main() {
 	bnClient := proto.NewBaanServiceClient(backendConn)
 	bnSrv := baanSrv.NewService(bnClient)
 	bnHdr := baanHdr.NewHandler(bnSrv)
+
+	checkinClient := proto.NewCheckinServiceClient(checkinConn)
+	checkinSrv := ciSrv.NewService(checkinClient)
+
+	qrHandler := qrHdr.NewHandler(checkinSrv, v)
 
 	authGuard := guard.NewAuthGuard(athSrv, auth.ExcludePath, conf.App)
 
@@ -171,6 +187,9 @@ func main() {
 	r.DeleteGroup("/leave", gHdr.Leave)
 	r.PutGroup("/select", gHdr.SelectBaan)
 	r.DeleteGroup("/members/:member_id", gHdr.DeleteMember)
+
+	r.PostQr("/checkin/verify", qrHandler.CheckinVerify)
+	r.PostQr("/checkin/confirm", qrHandler.CheckinConfirm)
 
 	go func() {
 		if err := r.Listen(fmt.Sprintf(":%v", conf.App.Port)); err != nil && err != http.ErrServerClosed {

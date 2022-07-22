@@ -9,6 +9,7 @@ type Service struct {
 	Auth    string `mapstructure:"auth"`
 	Backend string `mapstructure:"backend"`
 	File    string `mapstructure:"file"`
+	Checkin string `mapstructure:"checkin"`
 }
 
 type App struct {
