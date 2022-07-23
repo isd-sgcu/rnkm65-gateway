@@ -717,6 +717,132 @@ const docTemplate = `{
                 }
             }
         },
+        "/qr/checkin/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "description": "Use token to confirm checkin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "QR"
+                ],
+                "summary": "Confirm Checkin",
+                "parameters": [
+                    {
+                        "description": "Token generated from CheckinVerify",
+                        "name": "token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CheckinConfirmRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "OK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseBadRequestErr"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseInternalErr"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/qr/checkin/verify": {
+            "post": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "description": "get token by providing id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "QR"
+                ],
+                "summary": "Get Token",
+                "parameters": [
+                    {
+                        "description": "event type (1 is Main event, 2 is Freshy Night)",
+                        "name": "event_type",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CheckinVerifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "OK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseBadRequestErr"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseInternalErr"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "put": {
                 "security": [
@@ -1027,6 +1153,22 @@ const docTemplate = `{
                 "value": {}
             }
         },
+        "dto.CheckinConfirmRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CheckinVerifyRequest": {
+            "type": "object",
+            "properties": {
+                "event_type": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.Credential": {
             "type": "object",
             "properties": {
@@ -1303,6 +1445,23 @@ const docTemplate = `{
                 }
             }
         },
+        "proto.BaanInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "nameEN": {
+                    "type": "string"
+                },
+                "nameTH": {
+                    "type": "string"
+                }
+            }
+        },
         "proto.FindByTokenGroupResponse": {
             "type": "object",
             "properties": {
@@ -1320,6 +1479,12 @@ const docTemplate = `{
         "proto.Group": {
             "type": "object",
             "properties": {
+                "baans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.BaanInfo"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },

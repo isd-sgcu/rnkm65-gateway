@@ -7,6 +7,16 @@ definitions:
         type: string
       value: {}
     type: object
+  dto.CheckinConfirmRequest:
+    properties:
+      token:
+        type: string
+    type: object
+  dto.CheckinVerifyRequest:
+    properties:
+      event_type:
+        type: integer
+    type: object
   dto.Credential:
     properties:
       access_token:
@@ -196,6 +206,17 @@ definitions:
       size:
         type: integer
     type: object
+  proto.BaanInfo:
+    properties:
+      id:
+        type: string
+      imageUrl:
+        type: string
+      nameEN:
+        type: string
+      nameTH:
+        type: string
+    type: object
   proto.FindByTokenGroupResponse:
     properties:
       id:
@@ -207,6 +228,10 @@ definitions:
     type: object
   proto.Group:
     properties:
+      baans:
+        items:
+          $ref: '#/definitions/proto.BaanInfo'
+        type: array
       id:
         type: string
       leaderID:
@@ -724,6 +749,86 @@ paths:
       summary: select baan for the group (leader only)
       tags:
       - group
+  /qr/checkin/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Use token to confirm checkin
+      parameters:
+      - description: Token generated from CheckinVerify
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CheckinConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseInternalErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
+      summary: Confirm Checkin
+      tags:
+      - QR
+  /qr/checkin/verify:
+    post:
+      consumes:
+      - application/json
+      description: get token by providing id
+      parameters:
+      - description: event type (1 is Main event, 2 is Freshy Night)
+        in: body
+        name: event_type
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CheckinVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ResponseBadRequestErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseInternalErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
+      summary: Get Token
+      tags:
+      - QR
   /user:
     post:
       consumes:

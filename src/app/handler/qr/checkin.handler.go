@@ -21,15 +21,17 @@ type IContext interface {
 // qr checkin which checkin for event day
 // @Summary Get Token
 // @Description get token by providing id
+// @Param event_type body dto.CheckinVerifyRequest true "event type (1 is Main event, 2 is Freshy Night)"
 // @Tags QR
 // @Accept json
 // @Produce json
 // @Success 200 OK proto.CheckinVerifyResponse
 // @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
-// @Failure 500 {object} dto.ResponseInternalServerErr Internal server error
+// @Failure 500 {object} dto.ResponseInternalErr Internal server error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
 // @Router /qr/checkin/verify [post]
+// @Security     AuthToken
 func (h *Handler) CheckinVerify(ctx IContext) {
 	userid := ctx.UserID()
 	cvr := &dto.CheckinVerifyRequest{}
@@ -54,15 +56,17 @@ func (h *Handler) CheckinVerify(ctx IContext) {
 // qr checkin which checkin for event day
 // @Summary Confirm Checkin
 // @Description Use token to confirm checkin
+// @Param token body dto.CheckinConfirmRequest true "Token generated from CheckinVerify"
 // @Tags QR
 // @Accept json
 // @Produce json
 // @Success 200 OK proto.CheckinConfirmResponse
 // @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
-// @Failure 500 {object} dto.ResponseInternalServerErr Internal server error
+// @Failure 500 {object} dto.ResponseInternalErr Internal server error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
 // @Router /qr/checkin/confirm [post]
+// @Security     AuthToken
 func (h *Handler) CheckinConfirm(ctx IContext) {
 	ccr := &dto.CheckinConfirmRequest{}
 

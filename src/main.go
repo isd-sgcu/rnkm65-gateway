@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	
+
 	vaccineClient "github.com/isd-sgcu/rnkm65-gateway/src/app/client/vaccine"
 	authHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	baanHdr "github.com/isd-sgcu/rnkm65-gateway/src/app/handler/baan"
@@ -117,7 +117,7 @@ func main() {
 			Msg("Cannot connect to service")
 	}
 
-	checkinConn, err := grpc.Dial(conf.Service.Checkin, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	checkinConn, err := grpc.Dial(conf.Service.Backend, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal().
 			Err(err).
