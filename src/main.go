@@ -162,11 +162,11 @@ func main() {
 	r.GetHealthCheck("/", hc.HealthCheck)
 
 	r.PutUser("/", userHdr.CreateOrUpdate)
+	r.PatchUser("/", userHdr.Update)
 
 	if conf.App.Debug {
 		r.GetUser("/:id", userHdr.FindOne)
 		r.PostUser("/", userHdr.Create)
-		r.PutUser("/:id", userHdr.Update)
 		r.DeleteUser("/:id", userHdr.Delete)
 	}
 
