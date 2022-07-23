@@ -25,6 +25,9 @@ WORKDIR /app
 # Copy execute file
 COPY --from=base /app/server ./
 
+# add iwatch
+RUN apk add --no-cache iwatch=0.2.2-r0
+
 # Set ENV to production
 ENV GO_ENV production
 
