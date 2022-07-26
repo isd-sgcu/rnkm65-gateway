@@ -349,7 +349,59 @@ const docTemplate = `{
                         "AuthToken": []
                     }
                 ],
-                "description": "Get estamp id overview on what user has",
+                "description": "Get get all event with the given type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get all event by type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "eventType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/proto.FindAllEventWithTypeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseUnauthorizedErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseInternalErr"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseServiceDownErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/estamp/user": {
+            "get": {
+                "security": [
+                    {
+                        "AuthToken": []
+                    }
+                ],
+                "description": "Get estamp id overview on what user has *Return {} with success status code if user has no estamp",
                 "consumes": [
                     "application/json"
                 ],
@@ -1032,10 +1084,10 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
-                            "$ref": "#/definitions/dto.ConfirmEstampResponse"
+                            "$ref": "#/definitions/proto.ConfirmEstampResponse"
                         }
                     },
                     "400": {
@@ -1098,7 +1150,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.VerifyEstampResponse"
+                            "$ref": "#/definitions/proto.FindEventByIDResponse"
                         }
                     },
                     "400": {
@@ -1532,15 +1584,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ConfirmEstampResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "string",
-                    "example": "true"
-                }
-            }
-        },
         "dto.Credential": {
             "type": "object",
             "properties": {
@@ -1809,15 +1852,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.VerifyEstampResponse": {
-            "type": "object",
-            "properties": {
-                "found": {
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
         "dto.VerifyTicket": {
             "type": "object",
             "required": [
@@ -1898,6 +1932,9 @@ const docTemplate = `{
                 }
             }
         },
+        "proto.ConfirmEstampResponse": {
+            "type": "object"
+        },
         "proto.Event": {
             "type": "object",
             "properties": {
@@ -1918,6 +1955,17 @@ const docTemplate = `{
                 },
                 "nameTH": {
                     "type": "string"
+                }
+            }
+        },
+        "proto.FindAllEventWithTypeResponse": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/proto.Event"
+                    }
                 }
             }
         },

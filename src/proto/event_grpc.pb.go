@@ -27,6 +27,7 @@ type EventServiceClient interface {
 	Create(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	Update(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
 	Delete(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
+	FindAllEventWithType(ctx context.Context, in *FindAllEventWithTypeRequest, opts ...grpc.CallOption) (*FindAllEventWithTypeResponse, error)
 }
 
 type eventServiceClient struct {
@@ -82,6 +83,15 @@ func (c *eventServiceClient) Delete(ctx context.Context, in *DeleteEventRequest,
 	return out, nil
 }
 
+func (c *eventServiceClient) FindAllEventWithType(ctx context.Context, in *FindAllEventWithTypeRequest, opts ...grpc.CallOption) (*FindAllEventWithTypeResponse, error) {
+	out := new(FindAllEventWithTypeResponse)
+	err := c.cc.Invoke(ctx, "/event.EventService/FindAllEventWithType", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type EventServiceServer interface {
 	Create(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	Update(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
 	Delete(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
+	FindAllEventWithType(context.Context, *FindAllEventWithTypeRequest) (*FindAllEventWithTypeResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedEventServiceServer) Update(context.Context, *UpdateEventReque
 }
 func (UnimplementedEventServiceServer) Delete(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedEventServiceServer) FindAllEventWithType(context.Context, *FindAllEventWithTypeRequest) (*FindAllEventWithTypeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindAllEventWithType not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 
@@ -216,6 +230,24 @@ func _EventService_Delete_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_FindAllEventWithType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindAllEventWithTypeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).FindAllEventWithType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/event.EventService/FindAllEventWithType",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).FindAllEventWithType(ctx, req.(*FindAllEventWithTypeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _EventService_Delete_Handler,
+		},
+		{
+			MethodName: "FindAllEventWithType",
+			Handler:    _EventService_FindAllEventWithType_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

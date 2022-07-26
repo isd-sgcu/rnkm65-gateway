@@ -37,6 +37,18 @@ func (c *ClientMock) FindEventByID(_ context.Context, in *proto.FindEventByIDReq
 	return res, args.Error(1)
 }
 
+func (c *ClientMock) FindAllEventWithType(_ context.Context, in *proto.FindAllEventWithTypeRequest, opts ...grpc.CallOption) (*proto.FindAllEventWithTypeResponse, error) {
+	args := c.Called(in)
+
+	res := &proto.FindAllEventWithTypeResponse{}
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.FindAllEventWithTypeResponse)
+	}
+
+	return res, args.Error(1)
+}
+
 func (c *ClientMock) Create(_ context.Context, in *proto.CreateEventRequest, opts ...grpc.CallOption) (*proto.CreateEventResponse, error) {
 	return nil, nil
 }
@@ -58,6 +70,20 @@ func (s *ServiceMock) FindEventByID(id string) (res *proto.FindEventByIDResponse
 
 	if args.Get(0) != nil {
 		res = args.Get(0).(*proto.FindEventByIDResponse)
+	}
+
+	if args.Get(1) != nil {
+		err = args.Get(1).(*dto.ResponseErr)
+	}
+
+	return res, err
+}
+
+func (s *ServiceMock) FindAllEventWithType(eventType string) (res *proto.FindAllEventWithTypeResponse, err *dto.ResponseErr) {
+	args := s.Called(eventType)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.FindAllEventWithTypeResponse)
 	}
 
 	if args.Get(1) != nil {
@@ -111,5 +137,10 @@ func (c *ContextMock) Host() string {
 
 func (c *ContextMock) UserID() string {
 	args := c.Called()
+	return args.String(0)
+}
+
+func (c *ContextMock) Query(key string) string {
+	args := c.Called(key)
 	return args.String(0)
 }

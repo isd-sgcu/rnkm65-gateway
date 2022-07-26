@@ -33,12 +33,6 @@ definitions:
         example: ec5b9355-0b6c-11ed-b88b-0250cf8509e4
         type: string
     type: object
-  dto.ConfirmEstampResponse:
-    properties:
-      success:
-        example: "true"
-        type: string
-    type: object
   dto.Credential:
     properties:
       access_token:
@@ -223,12 +217,6 @@ definitions:
         example: ec5b9355-0b6c-11ed-b88b-0250cf8509e4
         type: string
     type: object
-  dto.VerifyEstampResponse:
-    properties:
-      found:
-        example: true
-        type: boolean
-    type: object
   dto.VerifyTicket:
     properties:
       ticket:
@@ -281,6 +269,8 @@ definitions:
       success:
         type: boolean
     type: object
+  proto.ConfirmEstampResponse:
+    type: object
   proto.Event:
     properties:
       code:
@@ -295,6 +285,13 @@ definitions:
         type: string
       nameTH:
         type: string
+    type: object
+  proto.FindAllEventWithTypeResponse:
+    properties:
+      event:
+        items:
+          $ref: '#/definitions/proto.Event'
+        type: array
     type: object
   proto.FindByTokenGroupResponse:
     properties:
@@ -602,16 +599,20 @@ paths:
       - baan
   /estamp:
     get:
-      consumes:
-      - application/json
-      description: Get estamp id overview on what user has
+      description: Get get all event with the given type
+      parameters:
+      - description: id
+        in: query
+        name: eventType
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/proto.GetUserEstampResponse'
+            $ref: '#/definitions/proto.FindAllEventWithTypeResponse'
         "401":
           description: Unauthorized
           schema:
@@ -626,7 +627,7 @@ paths:
             $ref: '#/definitions/dto.ResponseServiceDownErr'
       security:
       - AuthToken: []
-      summary: Get user estamp
+      summary: Get all event by type
       tags:
       - event
   /estamp/{id}:
@@ -666,6 +667,36 @@ paths:
       security:
       - AuthToken: []
       summary: Get event detail
+      tags:
+      - event
+  /estamp/user:
+    get:
+      consumes:
+      - application/json
+      description: Get estamp id overview on what user has *Return {} with success
+        status code if user has no estamp
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/proto.GetUserEstampResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseUnauthorizedErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ResponseInternalErr'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.ResponseServiceDownErr'
+      security:
+      - AuthToken: []
+      summary: Get user estamp
       tags:
       - event
   /file/upload:
@@ -1037,10 +1068,10 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
           schema:
-            $ref: '#/definitions/dto.ConfirmEstampResponse'
+            $ref: '#/definitions/proto.ConfirmEstampResponse'
         "400":
           description: Bad Request
           schema:
@@ -1080,7 +1111,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.VerifyEstampResponse'
+            $ref: '#/definitions/proto.FindEventByIDResponse'
         "400":
           description: Bad Request
           schema:

@@ -264,3 +264,8 @@ func (c *ContextMock) UserID() string {
 	args := c.Called()
 	return args.String(0)
 }
+
+func (c *ContextMock) Query(key string) string {
+	args := c.Called(key)
+	return args.String(0)
+}

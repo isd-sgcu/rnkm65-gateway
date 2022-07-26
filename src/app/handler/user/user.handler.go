@@ -239,7 +239,7 @@ func (h *Handler) Delete(ctx IContext) {
 
 // Get estamp overview id on what user has
 // @Summary Get user estamp
-// @Description Get estamp id overview on what user has *Return {} with success status code if user has zero stamp
+// @Description Get estamp id overview on what user has *Return {} with success status code if user has no estamp
 // @Tags event
 // @Accept json
 // @Produce json
@@ -247,7 +247,7 @@ func (h *Handler) Delete(ctx IContext) {
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 500 {object} dto.ResponseInternalErr Internal server error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
-// @Router /estamp [get]
+// @Router /estamp/user [get]
 // @Security     AuthToken
 func (h *Handler) GetUserEstamp(ctx estamp.IContext) {
 	id := ctx.UserID()
@@ -270,7 +270,7 @@ func (h *Handler) GetUserEstamp(ctx estamp.IContext) {
 // @Tags QR
 // @Accept json
 // @Produce json
-// @Success 200 {object} dto.ConfirmEstampResponse OK
+// @Success 204 {object} proto.ConfirmEstampResponse OK
 // @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 500 {object} dto.ResponseInternalErr Internal server error
@@ -295,6 +295,6 @@ func (h *Handler) ConfirmEstamp(ctx qr.IContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusNoContent, res)
 	return
 }

@@ -21,6 +21,7 @@ type EStampServiceTest struct {
 	Event2         *proto.Event
 	Event3         *proto.Event
 	User           *proto.User
+	EventType      string
 	NotFoundErr    *dto.ResponseErr
 	ServiceDownErr *dto.ResponseErr
 	InternalErr    *dto.ResponseErr
@@ -95,6 +96,8 @@ func (t *EStampServiceTest) SetupTest() {
 		Message:    "Internal Server Error",
 		Data:       nil,
 	}
+
+	t.EventType = "estamp"
 }
 
 func (t *EStampServiceTest) TestFindByIdSuccess() {
@@ -152,6 +155,69 @@ func (t *EStampServiceTest) TestFindByIdInternal() {
 
 	serv := NewService(c)
 	res, err := serv.FindEventByID(t.Event1.Id)
+
+	assert.Nil(t.T(), res)
+	assert.Equal(t.T(), t.InternalErr, err)
+}
+
+func (t *EStampServiceTest) TestFindAllEventWithTypeSuccess() {
+	want := &proto.FindAllEventWithTypeResponse{
+		Event: []*proto.Event{
+			t.Event1,
+			t.Event2,
+		},
+	}
+
+	c := &mock.ClientMock{}
+
+	c.On("FindAllEventWithType", &proto.FindAllEventWithTypeRequest{
+		EventType: t.EventType,
+	}).Return(want, nil)
+
+	serv := NewService(c)
+	res, err := serv.FindAllEventWithType(t.EventType)
+
+	assert.Nil(t.T(), err)
+	assert.Equal(t.T(), res, want)
+}
+
+func (t *EStampServiceTest) TestFindAllEventWithTypeUnavailable() {
+	c := &mock.ClientMock{}
+
+	c.On("FindAllEventWithType", &proto.FindAllEventWithTypeRequest{
+		EventType: t.EventType,
+	}).Return(nil, status.Error(codes.Unavailable, "Service is down"))
+
+	serv := NewService(c)
+	res, err := serv.FindAllEventWithType(t.EventType)
+
+	assert.Nil(t.T(), res)
+	assert.Equal(t.T(), t.ServiceDownErr, err)
+}
+
+func (t *EStampServiceTest) TestFindAllEventWithTypeNotFound() {
+	c := &mock.ClientMock{}
+
+	c.On("FindAllEventWithType", &proto.FindAllEventWithTypeRequest{
+		EventType: t.EventType,
+	}).Return(nil, status.Error(codes.NotFound, "Not found"))
+
+	serv := NewService(c)
+	res, err := serv.FindAllEventWithType(t.EventType)
+
+	assert.Nil(t.T(), res)
+	assert.Equal(t.T(), t.NotFoundErr, err)
+}
+
+func (t *EStampServiceTest) TestFindAllEventWithTypeInternal() {
+	c := &mock.ClientMock{}
+
+	c.On("FindAllEventWithType", &proto.FindAllEventWithTypeRequest{
+		EventType: t.EventType,
+	}).Return(nil, status.Error(codes.Internal, "Internal Server Error"))
+
+	serv := NewService(c)
+	res, err := serv.FindAllEventWithType(t.EventType)
 
 	assert.Nil(t.T(), res)
 	assert.Equal(t.T(), t.InternalErr, err)

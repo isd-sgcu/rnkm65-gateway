@@ -18,6 +18,7 @@ type EstampHandlerTest struct {
 	suite.Suite
 	UId            string
 	Events         []*proto.Event
+	EventType      string
 	BadRequestErr  *dto.ResponseErr
 	ServiceDownErr *dto.ResponseErr
 	NotFoundErr    *dto.ResponseErr
@@ -60,6 +61,8 @@ func (t *EstampHandlerTest) SetupTest() {
 		DescriptionEN: faker.Word(),
 		Code:          faker.Word(),
 	}
+
+	t.EventType = "estamp"
 
 	t.BadRequestErr = &dto.ResponseErr{
 		StatusCode: http.StatusBadRequest,
@@ -188,8 +191,8 @@ func (t *EstampHandlerTest) TestFindByIdUnavailable() {
 }
 
 func (t *EstampHandlerTest) TestVerifyEstampSuccess() {
-	want := &dto.VerifyEstampResponse{
-		Found: true,
+	want := &proto.FindEventByIDResponse{
+		Event: t.Events[0],
 	}
 
 	s := &mock.ServiceMock{}
@@ -244,6 +247,46 @@ func (t *EstampHandlerTest) TestVerifyEstampInnerError() {
 	hdr := NewHandler(s, v)
 
 	hdr.VerifyEstamp(c)
+
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
+}
+
+func (t *EstampHandlerTest) TestFindAllEventWithTypeSuccess() {
+	want := &proto.FindAllEventWithTypeResponse{
+		Event: []*proto.Event{
+			t.Events[0],
+			t.Events[1],
+		},
+	}
+
+	s := &mock.ServiceMock{}
+	s.On("FindAllEventWithType", t.EventType).Return(want, nil)
+
+	c := &mock.ContextMock{}
+	c.On("Query", "eventType").Return(t.EventType)
+
+	v, _ := validator.NewValidator()
+
+	hdr := NewHandler(s, v)
+
+	hdr.FindAllEventWithType(c)
+
+	assert.Equal(t.T(), http.StatusOK, c.Status)
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *EstampHandlerTest) TestFindAllEventWithTypeInnerError() {
+	s := &mock.ServiceMock{}
+	s.On("FindAllEventWithType", t.EventType).Return(nil, t.ServiceDownErr)
+
+	c := &mock.ContextMock{}
+	c.On("Query", "eventType").Return(t.EventType)
+
+	v, _ := validator.NewValidator()
+
+	hdr := NewHandler(s, v)
+
+	hdr.FindAllEventWithType(c)
 
 	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }

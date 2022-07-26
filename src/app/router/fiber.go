@@ -132,6 +132,10 @@ func (c *FiberCtx) Next() {
 	c.Ctx.Next()
 }
 
+func (c *FiberCtx) Query(key string) string {
+	return c.Ctx.Query(key)
+}
+
 func (c *FiberCtx) File(key string, allowContent map[string]struct{}, maxSize int64) (*dto.DecomposedFile, error) {
 	file, err := c.Ctx.FormFile(key)
 	if err != nil {

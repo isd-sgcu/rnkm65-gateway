@@ -195,7 +195,8 @@ func main() {
 	r.PostQr("/estamp/confirm", userHdr.ConfirmEstamp)
 
 	r.GetEstamp("/:id", estampHdr.FindEventByID)
-	r.GetEstamp("/", userHdr.GetUserEstamp)
+	r.GetEstamp("/", estampHdr.FindAllEventWithType)
+	r.GetEstamp("/user", userHdr.GetUserEstamp)
 
 	go func() {
 		if err := r.Listen(fmt.Sprintf(":%v", conf.App.Port)); err != nil && err != http.ErrServerClosed {

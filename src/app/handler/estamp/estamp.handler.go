@@ -20,6 +20,7 @@ type IContext interface {
 	UserID() string
 	Bind(interface{}) error
 	ID() (string, error)
+	Query(string) string
 }
 
 func NewHandler(estampService IEstampService, v *validate.DtoValidator) *Handler {
@@ -30,7 +31,8 @@ func NewHandler(estampService IEstampService, v *validate.DtoValidator) *Handler
 }
 
 type IEstampService interface {
-	FindEventByID(id string) (*proto.FindEventByIDResponse, *dto.ResponseErr)
+	FindEventByID(string) (*proto.FindEventByIDResponse, *dto.ResponseErr)
+	FindAllEventWithType(string) (*proto.FindAllEventWithTypeResponse, *dto.ResponseErr)
 }
 
 // Get detail of event using event id
@@ -72,7 +74,7 @@ func (h *Handler) FindEventByID(ctx IContext) {
 // @Tags QR
 // @Accept json
 // @Produce json
-// @Success 200 {object} dto.VerifyEstampResponse OK
+// @Success 200 {object} proto.FindEventByIDResponse OK
 // @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 500 {object} dto.ResponseInternalErr Internal server error
@@ -89,15 +91,39 @@ func (h *Handler) VerifyEstamp(ctx qr.IContext) {
 		return
 	}
 
-	_, errRes := h.service.FindEventByID(ve.EventId)
+	res, errRes := h.service.FindEventByID(ve.EventId)
 
 	if errRes != nil {
 		ctx.JSON(errRes.StatusCode, errRes)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &dto.VerifyEstampResponse{
-		Found: true,
-	})
+	ctx.JSON(http.StatusOK, res)
+	return
+}
+
+// Get all event by type
+// @Summary Get all event by type
+// @Description Get get all event with the given type
+// @Param eventType query string true "id"
+// @Tags event
+// @Produce json
+// @Success 200 {object} proto.FindAllEventWithTypeResponse OK
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 500 {object} dto.ResponseInternalErr Internal server error
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Router /estamp [get]
+// @Security     AuthToken
+func (h *Handler) FindAllEventWithType(ctx IContext) {
+	eventType := ctx.Query("eventType")
+
+	res, errRes := h.service.FindAllEventWithType(eventType)
+
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
 	return
 }
