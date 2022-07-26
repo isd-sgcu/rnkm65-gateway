@@ -81,6 +81,35 @@ func (t *UserHandlerTest) SetupTest() {
 		Code:          faker.Word(),
 	}
 
+	t.Events = make([]*proto.Event, 3)
+
+	t.Events[0] = &proto.Event{
+		Id:            faker.UUIDDigit(),
+		NameTH:        faker.Word(),
+		DescriptionTH: faker.Word(),
+		NameEN:        faker.Word(),
+		DescriptionEN: faker.Word(),
+		Code:          faker.Word(),
+	}
+
+	t.Events[1] = &proto.Event{
+		Id:            faker.UUIDDigit(),
+		NameTH:        faker.Word(),
+		DescriptionTH: faker.Word(),
+		NameEN:        faker.Word(),
+		DescriptionEN: faker.Word(),
+		Code:          faker.Word(),
+	}
+
+	t.Events[2] = &proto.Event{
+		Id:            faker.UUIDDigit(),
+		NameTH:        faker.Word(),
+		DescriptionTH: faker.Word(),
+		NameEN:        faker.Word(),
+		DescriptionEN: faker.Word(),
+		Code:          faker.Word(),
+	}
+
 	t.UserDto = &dto.UserDto{
 		ID:              t.User.Id,
 		Title:           t.User.Title,
