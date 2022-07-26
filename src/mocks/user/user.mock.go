@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/dto"
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 	"github.com/stretchr/testify/mock"
@@ -94,6 +95,48 @@ func (s *ServiceMock) Delete(id string) (result bool, err *dto.ResponseErr) {
 	return
 }
 
+func (s *ServiceMock) GetUserEstamp(id string) (res *proto.GetUserEstampResponse, err *dto.ResponseErr) {
+	args := s.Called(id)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.GetUserEstampResponse)
+	}
+
+	if args.Get(1) != nil {
+		err = args.Get(1).(*dto.ResponseErr)
+	}
+
+	return res, err
+}
+
+func (s *ServiceMock) VerifyEstamp(uid, eid string) (res *proto.VerifyEstampResponse, err *dto.ResponseErr) {
+	args := s.Called(uid, eid)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.VerifyEstampResponse)
+	}
+
+	if args.Get(1) != nil {
+		err = args.Get(1).(*dto.ResponseErr)
+	}
+
+	return res, err
+}
+
+func (s *ServiceMock) ConfirmEstamp(uid, eid string) (res *proto.ConfirmEstampResponse, err *dto.ResponseErr) {
+	args := s.Called(uid, eid)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.ConfirmEstampResponse)
+	}
+
+	if args.Get(1) != nil {
+		err = args.Get(1).(*dto.ResponseErr)
+	}
+
+	return res, err
+}
+
 type ClientMock struct {
 	mock.Mock
 }
@@ -116,6 +159,17 @@ func (c *ClientMock) FindOne(_ context.Context, in *proto.FindOneUserRequest, _ 
 	}
 
 	return res, args.Error(1)
+}
+
+func (c *ClientMock) FindByStudentID(_ context.Context, in *proto.FindByStudentIDUserRequest, _ ...grpc.CallOption) (res *proto.FindByStudentIDUserResponse, err error) {
+	args := c.Called(in)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.FindByStudentIDUserResponse)
+	}
+
+	return res, args.Error(1)
+
 }
 
 func (c *ClientMock) Create(_ context.Context, in *proto.CreateUserRequest, _ ...grpc.CallOption) (res *proto.CreateUserResponse, err error) {
@@ -158,6 +212,36 @@ func (c *ClientMock) CreateOrUpdate(_ context.Context, in *proto.CreateOrUpdateU
 	return res, args.Error(1)
 }
 
+func (c *ClientMock) VerifyEstamp(_ context.Context, in *proto.VerifyEstampRequest, _ ...grpc.CallOption) (res *proto.VerifyEstampResponse, err error) {
+	args := c.Called(in)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.VerifyEstampResponse)
+	}
+
+	return res, args.Error(1)
+}
+
+func (c *ClientMock) ConfirmEstamp(_ context.Context, in *proto.ConfirmEstampRequest, _ ...grpc.CallOption) (res *proto.ConfirmEstampResponse, err error) {
+	args := c.Called(in)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.ConfirmEstampResponse)
+	}
+
+	return res, args.Error(1)
+}
+
+func (c *ClientMock) GetUserEstamp(_ context.Context, in *proto.GetUserEstampRequest, _ ...grpc.CallOption) (res *proto.GetUserEstampResponse, err error) {
+	args := c.Called(in)
+
+	if args.Get(0) != nil {
+		res = args.Get(0).(*proto.GetUserEstampResponse)
+	}
+
+	return res, args.Error(1)
+}
+
 type ContextMock struct {
 	mock.Mock
 	V      interface{}
@@ -172,13 +256,19 @@ func (c *ContextMock) JSON(status int, v interface{}) {
 func (c *ContextMock) Bind(v interface{}) error {
 	args := c.Called(v)
 
-	switch v.(type) {
-	case *dto.UserDto:
-		*v.(*dto.UserDto) = *args.Get(0).(*dto.UserDto)
-	case *dto.UpdateUserDto:
-		*v.(*dto.UpdateUserDto) = *args.Get(0).(*dto.UpdateUserDto)
-	case *dto.Verify:
-		*v.(*dto.Verify) = *args.Get(0).(*dto.Verify)
+	if args.Get(0) != nil {
+		switch v.(type) {
+		case *dto.UserDto:
+			*v.(*dto.UserDto) = *args.Get(0).(*dto.UserDto)
+		case *dto.UpdateUserDto:
+			*v.(*dto.UpdateUserDto) = *args.Get(0).(*dto.UpdateUserDto)
+		case *dto.Verify:
+			*v.(*dto.Verify) = *args.Get(0).(*dto.Verify)
+		case *dto.ConfirmEstamp:
+			*v.(*dto.ConfirmEstamp) = *args.Get(0).(*dto.ConfirmEstamp)
+		case *dto.VerifyEstamp:
+			*v.(*dto.VerifyEstamp) = *args.Get(0).(*dto.VerifyEstamp)
+		}
 	}
 
 	return args.Error(1)
