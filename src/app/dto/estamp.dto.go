@@ -1,9 +1,17 @@
 package dto
 
-type VerifyEstamp struct {
+type VerifyEstampRequest struct {
 	EventId string `json:"event_id" example:"ec5b9355-0b6c-11ed-b88b-0250cf8509e4"`
 }
 
-type ConfirmEstamp struct {
+type VerifyEstampResponse struct {
+	Found bool `json:"found" example:"true"`
+}
+
+type ConfirmEstampRequest struct {
 	EventId string `json:"event_id" example:"ec5b9355-0b6c-11ed-b88b-0250cf8509e4"`
+}
+
+type ConfirmEstampResponse struct {
+	Success string `json:"success" example:"true"`
 }

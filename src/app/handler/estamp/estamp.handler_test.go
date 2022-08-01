@@ -17,9 +17,7 @@ import (
 type EstampHandlerTest struct {
 	suite.Suite
 	UId            string
-	Event1         *proto.Event
-	Event2         *proto.Event
-	Event3         *proto.Event
+	Events         []*proto.Event
 	BadRequestErr  *dto.ResponseErr
 	ServiceDownErr *dto.ResponseErr
 	NotFoundErr    *dto.ResponseErr
@@ -34,7 +32,9 @@ func TestEstampHandler(t *testing.T) {
 func (t *EstampHandlerTest) SetupTest() {
 	t.UId = faker.UUIDDigit()
 
-	t.Event1 = &proto.Event{
+	t.Events = make([]*proto.Event, 3)
+
+	t.Events[0] = &proto.Event{
 		Id:            faker.UUIDDigit(),
 		NameTH:        faker.Word(),
 		DescriptionTH: faker.Word(),
@@ -43,7 +43,7 @@ func (t *EstampHandlerTest) SetupTest() {
 		Code:          faker.Word(),
 	}
 
-	t.Event2 = &proto.Event{
+	t.Events[1] = &proto.Event{
 		Id:            faker.UUIDDigit(),
 		NameTH:        faker.Word(),
 		DescriptionTH: faker.Word(),
@@ -52,7 +52,7 @@ func (t *EstampHandlerTest) SetupTest() {
 		Code:          faker.Word(),
 	}
 
-	t.Event3 = &proto.Event{
+	t.Events[2] = &proto.Event{
 		Id:            faker.UUIDDigit(),
 		NameTH:        faker.Word(),
 		DescriptionTH: faker.Word(),
@@ -94,18 +94,18 @@ func (t *EstampHandlerTest) SetupTest() {
 
 func (t *EstampHandlerTest) TestFindByIdSuccess() {
 	want := &proto.FindEventByIDResponse{
-		Event: t.Event1,
+		Event: t.Events[0],
 	}
 
 	s := &mock.ServiceMock{}
-	s.On("FindEventByID", t.Event1.Id).Return(want, nil)
+	s.On("FindEventByID", t.Events[0].Id).Return(want, nil)
 
 	v, _ := validator.NewValidator()
 
 	hdr := NewHandler(s, v)
 
 	cm := &mock.ContextMock{}
-	cm.On("ID").Return(t.Event1.Id, nil)
+	cm.On("ID").Return(t.Events[0].Id, nil)
 
 	hdr.FindEventByID(cm)
 
@@ -129,13 +129,13 @@ func (t *EstampHandlerTest) TestFindByIdBadRequest() {
 
 func (t *EstampHandlerTest) TestFindByIdForbidden() {
 	s := &mock.ServiceMock{}
-	s.On("FindEventByID", t.Event1.Id).Return(nil, t.ForbiddenErr)
+	s.On("FindEventByID", t.Events[0].Id).Return(nil, t.ForbiddenErr)
 	v, _ := validator.NewValidator()
 
 	hdr := NewHandler(s, v)
 
 	cm := &mock.ContextMock{}
-	cm.On("ID").Return(t.Event1.Id, nil)
+	cm.On("ID").Return(t.Events[0].Id, nil)
 
 	hdr.FindEventByID(cm)
 
@@ -144,13 +144,13 @@ func (t *EstampHandlerTest) TestFindByIdForbidden() {
 
 func (t *EstampHandlerTest) TestFindByIdNotFound() {
 	s := &mock.ServiceMock{}
-	s.On("FindEventByID", t.Event1.Id).Return(nil, t.NotFoundErr)
+	s.On("FindEventByID", t.Events[0].Id).Return(nil, t.NotFoundErr)
 	v, _ := validator.NewValidator()
 
 	hdr := NewHandler(s, v)
 
 	cm := &mock.ContextMock{}
-	cm.On("ID").Return(t.Event1.Id, nil)
+	cm.On("ID").Return(t.Events[0].Id, nil)
 
 	hdr.FindEventByID(cm)
 
@@ -159,13 +159,13 @@ func (t *EstampHandlerTest) TestFindByIdNotFound() {
 
 func (t *EstampHandlerTest) TestFindByIdInternal() {
 	s := &mock.ServiceMock{}
-	s.On("FindEventByID", t.Event1.Id).Return(nil, t.InternalErr)
+	s.On("FindEventByID", t.Events[0].Id).Return(nil, t.InternalErr)
 	v, _ := validator.NewValidator()
 
 	hdr := NewHandler(s, v)
 
 	cm := &mock.ContextMock{}
-	cm.On("ID").Return(t.Event1.Id, nil)
+	cm.On("ID").Return(t.Events[0].Id, nil)
 
 	hdr.FindEventByID(cm)
 
@@ -174,15 +174,76 @@ func (t *EstampHandlerTest) TestFindByIdInternal() {
 
 func (t *EstampHandlerTest) TestFindByIdUnavailable() {
 	s := &mock.ServiceMock{}
-	s.On("FindEventByID", t.Event1.Id).Return(nil, t.ServiceDownErr)
+	s.On("FindEventByID", t.Events[0].Id).Return(nil, t.ServiceDownErr)
 	v, _ := validator.NewValidator()
 
 	hdr := NewHandler(s, v)
 
 	cm := &mock.ContextMock{}
-	cm.On("ID").Return(t.Event1.Id, nil)
+	cm.On("ID").Return(t.Events[0].Id, nil)
 
 	hdr.FindEventByID(cm)
 
 	assert.Equal(t.T(), http.StatusServiceUnavailable, cm.Status)
+}
+
+func (t *EstampHandlerTest) TestVerifyEstampSuccess() {
+	want := &dto.VerifyEstampResponse{
+		Found: true,
+	}
+
+	s := &mock.ServiceMock{}
+	s.On("FindEventByID", t.Events[0].Id).Return(&proto.FindEventByIDResponse{
+		Event: t.Events[0],
+	}, nil)
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.UId)
+	c.On("Bind", &dto.VerifyEstampRequest{}).Return(&dto.VerifyEstampRequest{
+		EventId: t.Events[0].Id,
+	}, nil)
+
+	v, _ := validator.NewValidator()
+
+	hdr := NewHandler(s, v)
+
+	hdr.VerifyEstamp(c)
+
+	assert.Equal(t.T(), http.StatusOK, c.Status)
+	assert.Equal(t.T(), want, c.V)
+}
+
+func (t *EstampHandlerTest) TestVerifyEstampBadRequest() {
+	s := &mock.ServiceMock{}
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.UId)
+	c.On("Bind", &dto.VerifyEstampRequest{}).Return(nil, errors.New(""))
+
+	v, _ := validator.NewValidator()
+
+	hdr := NewHandler(s, v)
+
+	hdr.VerifyEstamp(c)
+
+	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
+}
+
+func (t *EstampHandlerTest) TestVerifyEstampInnerError() {
+	s := &mock.ServiceMock{}
+	s.On("FindEventByID", t.Events[0].Id).Return(nil, t.ServiceDownErr)
+
+	c := &mock.ContextMock{}
+	c.On("UserID").Return(t.UId)
+	c.On("Bind", &dto.VerifyEstampRequest{}).Return(&dto.VerifyEstampRequest{
+		EventId: t.Events[0].Id,
+	}, nil)
+
+	v, _ := validator.NewValidator()
+
+	hdr := NewHandler(s, v)
+
+	hdr.VerifyEstamp(c)
+
+	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
 }

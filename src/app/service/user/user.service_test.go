@@ -368,74 +368,8 @@ func (t *UserServiceTest) TestDeleteGrpcErr() {
 	assert.Equal(t.T(), want, err)
 }
 
-func (t *UserServiceTest) TestVerifyEstampSuccess() {
-	want := &proto.VerifyEstampResponse{
-		Found: true,
-	}
-
-	c := &user.ClientMock{}
-
-	c.On("VerifyEstamp", &proto.VerifyEstampRequest{
-		UId: t.User.Id,
-		EId: t.Events[0].Id,
-	}).Return(want, nil)
-
-	serv := NewService(c)
-	res, err := serv.VerifyEstamp(t.User.Id, t.Events[0].Id)
-
-	assert.Nil(t.T(), err)
-	assert.Equal(t.T(), res, want)
-}
-
-func (t *UserServiceTest) TestVerifyEstampNotFound() {
-	c := &user.ClientMock{}
-
-	c.On("VerifyEstamp", &proto.VerifyEstampRequest{
-		UId: t.User.Id,
-		EId: t.Events[0].Id,
-	}).Return(nil, status.Error(codes.NotFound, "User not found"))
-
-	serv := NewService(c)
-	res, err := serv.VerifyEstamp(t.User.Id, t.Events[0].Id)
-
-	assert.Nil(t.T(), res)
-	assert.Equal(t.T(), err, t.NotFoundErr)
-}
-
-func (t *UserServiceTest) TestVerifyEstampInternal() {
-	c := &user.ClientMock{}
-
-	c.On("VerifyEstamp", &proto.VerifyEstampRequest{
-		UId: t.User.Id,
-		EId: t.Events[0].Id,
-	}).Return(nil, status.Error(codes.Internal, "Internal Server Error"))
-
-	serv := NewService(c)
-	res, err := serv.VerifyEstamp(t.User.Id, t.Events[0].Id)
-
-	assert.Nil(t.T(), res)
-	assert.Equal(t.T(), err, t.InternalErr)
-}
-
-func (t *UserServiceTest) TestVerifyEstampUnavailable() {
-	c := &user.ClientMock{}
-
-	c.On("VerifyEstamp", &proto.VerifyEstampRequest{
-		UId: t.User.Id,
-		EId: t.Events[0].Id,
-	}).Return(nil, status.Error(codes.Unavailable, "Service is down"))
-
-	serv := NewService(c)
-	res, err := serv.VerifyEstamp(t.User.Id, t.Events[0].Id)
-
-	assert.Nil(t.T(), res)
-	assert.Equal(t.T(), err, t.ServiceDownErr)
-}
-
 func (t *UserServiceTest) TestConfirmEstampSuccess() {
-	want := &proto.ConfirmEstampResponse{
-		Event: t.Events[0],
-	}
+	want := &proto.ConfirmEstampResponse{}
 
 	c := &user.ClientMock{}
 

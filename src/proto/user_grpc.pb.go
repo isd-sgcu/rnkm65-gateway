@@ -29,7 +29,6 @@ type UserServiceClient interface {
 	Verify(ctx context.Context, in *VerifyUserRequest, opts ...grpc.CallOption) (*VerifyUserResponse, error)
 	Delete(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	CreateOrUpdate(ctx context.Context, in *CreateOrUpdateUserRequest, opts ...grpc.CallOption) (*CreateOrUpdateUserResponse, error)
-	VerifyEstamp(ctx context.Context, in *VerifyEstampRequest, opts ...grpc.CallOption) (*VerifyEstampResponse, error)
 	ConfirmEstamp(ctx context.Context, in *ConfirmEstampRequest, opts ...grpc.CallOption) (*ConfirmEstampResponse, error)
 	GetUserEstamp(ctx context.Context, in *GetUserEstampRequest, opts ...grpc.CallOption) (*GetUserEstampResponse, error)
 }
@@ -105,15 +104,6 @@ func (c *userServiceClient) CreateOrUpdate(ctx context.Context, in *CreateOrUpda
 	return out, nil
 }
 
-func (c *userServiceClient) VerifyEstamp(ctx context.Context, in *VerifyEstampRequest, opts ...grpc.CallOption) (*VerifyEstampResponse, error) {
-	out := new(VerifyEstampResponse)
-	err := c.cc.Invoke(ctx, "/user.UserService/VerifyEstamp", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userServiceClient) ConfirmEstamp(ctx context.Context, in *ConfirmEstampRequest, opts ...grpc.CallOption) (*ConfirmEstampResponse, error) {
 	out := new(ConfirmEstampResponse)
 	err := c.cc.Invoke(ctx, "/user.UserService/ConfirmEstamp", in, out, opts...)
@@ -143,7 +133,6 @@ type UserServiceServer interface {
 	Verify(context.Context, *VerifyUserRequest) (*VerifyUserResponse, error)
 	Delete(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	CreateOrUpdate(context.Context, *CreateOrUpdateUserRequest) (*CreateOrUpdateUserResponse, error)
-	VerifyEstamp(context.Context, *VerifyEstampRequest) (*VerifyEstampResponse, error)
 	ConfirmEstamp(context.Context, *ConfirmEstampRequest) (*ConfirmEstampResponse, error)
 	GetUserEstamp(context.Context, *GetUserEstampRequest) (*GetUserEstampResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
@@ -173,9 +162,6 @@ func (UnimplementedUserServiceServer) Delete(context.Context, *DeleteUserRequest
 }
 func (UnimplementedUserServiceServer) CreateOrUpdate(context.Context, *CreateOrUpdateUserRequest) (*CreateOrUpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrUpdate not implemented")
-}
-func (UnimplementedUserServiceServer) VerifyEstamp(context.Context, *VerifyEstampRequest) (*VerifyEstampResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyEstamp not implemented")
 }
 func (UnimplementedUserServiceServer) ConfirmEstamp(context.Context, *ConfirmEstampRequest) (*ConfirmEstampResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmEstamp not implemented")
@@ -322,24 +308,6 @@ func _UserService_CreateOrUpdate_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_VerifyEstamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyEstampRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).VerifyEstamp(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/VerifyEstamp",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).VerifyEstamp(ctx, req.(*VerifyEstampRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _UserService_ConfirmEstamp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConfirmEstampRequest)
 	if err := dec(in); err != nil {
@@ -410,10 +378,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOrUpdate",
 			Handler:    _UserService_CreateOrUpdate_Handler,
-		},
-		{
-			MethodName: "VerifyEstamp",
-			Handler:    _UserService_VerifyEstamp_Handler,
 		},
 		{
 			MethodName: "ConfirmEstamp",

@@ -109,20 +109,6 @@ func (s *ServiceMock) GetUserEstamp(id string) (res *proto.GetUserEstampResponse
 	return res, err
 }
 
-func (s *ServiceMock) VerifyEstamp(uid, eid string) (res *proto.VerifyEstampResponse, err *dto.ResponseErr) {
-	args := s.Called(uid, eid)
-
-	if args.Get(0) != nil {
-		res = args.Get(0).(*proto.VerifyEstampResponse)
-	}
-
-	if args.Get(1) != nil {
-		err = args.Get(1).(*dto.ResponseErr)
-	}
-
-	return res, err
-}
-
 func (s *ServiceMock) ConfirmEstamp(uid, eid string) (res *proto.ConfirmEstampResponse, err *dto.ResponseErr) {
 	args := s.Called(uid, eid)
 
@@ -212,16 +198,6 @@ func (c *ClientMock) CreateOrUpdate(_ context.Context, in *proto.CreateOrUpdateU
 	return res, args.Error(1)
 }
 
-func (c *ClientMock) VerifyEstamp(_ context.Context, in *proto.VerifyEstampRequest, _ ...grpc.CallOption) (res *proto.VerifyEstampResponse, err error) {
-	args := c.Called(in)
-
-	if args.Get(0) != nil {
-		res = args.Get(0).(*proto.VerifyEstampResponse)
-	}
-
-	return res, args.Error(1)
-}
-
 func (c *ClientMock) ConfirmEstamp(_ context.Context, in *proto.ConfirmEstampRequest, _ ...grpc.CallOption) (res *proto.ConfirmEstampResponse, err error) {
 	args := c.Called(in)
 
@@ -264,10 +240,8 @@ func (c *ContextMock) Bind(v interface{}) error {
 			*v.(*dto.UpdateUserDto) = *args.Get(0).(*dto.UpdateUserDto)
 		case *dto.Verify:
 			*v.(*dto.Verify) = *args.Get(0).(*dto.Verify)
-		case *dto.ConfirmEstamp:
-			*v.(*dto.ConfirmEstamp) = *args.Get(0).(*dto.ConfirmEstamp)
-		case *dto.VerifyEstamp:
-			*v.(*dto.VerifyEstamp) = *args.Get(0).(*dto.VerifyEstamp)
+		case *dto.ConfirmEstampRequest:
+			*v.(*dto.ConfirmEstampRequest) = *args.Get(0).(*dto.ConfirmEstampRequest)
 		}
 	}
 

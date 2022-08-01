@@ -7,6 +7,7 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/proto"
 
 	validate "github.com/isd-sgcu/rnkm65-gateway/src/app/validator"
+	"github.com/isd-sgcu/rnkm65-gateway/src/interfaces/qr"
 )
 
 type Handler struct {
@@ -44,7 +45,7 @@ type IEstampService interface {
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 500 {object} dto.ResponseInternalErr Internal server error
 // @Failure 503 {object} dto.ResponseServiceDownErr Service is down
-// @Router /estamp/:id [get]
+// @Router /estamp/{id} [get]
 // @Security     AuthToken
 func (h *Handler) FindEventByID(ctx IContext) {
 	id, err := ctx.ID()
@@ -62,4 +63,41 @@ func (h *Handler) FindEventByID(ctx IContext) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
+}
+
+// verify estamp for event day
+// @Summary check if estamp exist
+// @Description check if estamp exist
+// @Param event_id body dto.VerifyEstampRequest true "event id"
+// @Tags QR
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.VerifyEstampResponse OK
+// @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
+// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
+// @Failure 500 {object} dto.ResponseInternalErr Internal server error
+// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
+// @Router /qr/estamp/verify [post]
+// @Security     AuthToken
+func (h *Handler) VerifyEstamp(ctx qr.IContext) {
+	ve := &dto.VerifyEstampRequest{}
+
+	err := ctx.Bind(ve)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	_, errRes := h.service.FindEventByID(ve.EventId)
+
+	if errRes != nil {
+		ctx.JSON(errRes.StatusCode, errRes)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &dto.VerifyEstampResponse{
+		Found: true,
+	})
+	return
 }

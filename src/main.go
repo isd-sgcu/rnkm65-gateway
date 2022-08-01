@@ -191,11 +191,11 @@ func main() {
 
 	r.PostQr("/checkin/verify", ciHandler.CheckinVerify)
 	r.PostQr("/checkin/confirm", ciHandler.CheckinConfirm)
-	r.PostQr("/estamp/verify", userHdr.VerifyEstamp)
+	r.PostQr("/estamp/verify", estampHdr.VerifyEstamp)
 	r.PostQr("/estamp/confirm", userHdr.ConfirmEstamp)
 
-	r.PostEstamp("/:id", estampHdr.FindEventByID)
-	r.PostEstamp("/", userHdr.GetUserEstamp)
+	r.GetEstamp("/:id", estampHdr.FindEventByID)
+	r.GetEstamp("/", userHdr.GetUserEstamp)
 
 	go func() {
 		if err := r.Listen(fmt.Sprintf(":%v", conf.App.Port)); err != nil && err != http.ErrServerClosed {

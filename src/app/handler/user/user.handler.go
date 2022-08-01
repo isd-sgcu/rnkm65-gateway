@@ -38,7 +38,6 @@ type IService interface {
 	CreateOrUpdate(*dto.UserDto) (*proto.User, *dto.ResponseErr)
 	Delete(string) (bool, *dto.ResponseErr)
 	GetUserEstamp(string) (*proto.GetUserEstampResponse, *dto.ResponseErr)
-	VerifyEstamp(string, string) (*proto.VerifyEstampResponse, *dto.ResponseErr)
 	ConfirmEstamp(string, string) (*proto.ConfirmEstampResponse, *dto.ResponseErr)
 }
 
@@ -264,50 +263,14 @@ func (h *Handler) GetUserEstamp(ctx estamp.IContext) {
 	return
 }
 
-// verify estamp for event day
-// @Summary check if estamp exist
-// @Description check if estamp exist
-// @Param event_id body dto.VerifyEstamp true "event id"
-// @Tags QR
-// @Accept json
-// @Produce json
-// @Success 200 {object} proto.VerifyEstampResponse OK
-// @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
-// @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
-// @Failure 500 {object} dto.ResponseInternalErr Internal server error
-// @Failure 503 {object} dto.ResponseServiceDownErr Service is down
-// @Router /qr/estamp/verify [post]
-// @Security     AuthToken
-func (h *Handler) VerifyEstamp(ctx qr.IContext) {
-	userid := ctx.UserID()
-	ve := &dto.VerifyEstamp{}
-
-	err := ctx.Bind(ve)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	res, errRes := h.service.VerifyEstamp(userid, ve.EventId)
-
-	if errRes != nil {
-		ctx.JSON(errRes.StatusCode, errRes)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, res)
-	return
-}
-
 // get estamp for user
 // @Summary Confirm Estamp
 // @Description get estamp
-// @Param token body dto.ConfirmEstamp true "Event id"
+// @Param token body dto.ConfirmEstampRequest true "Event id"
 // @Tags QR
 // @Accept json
 // @Produce json
-// @Success 200 {object} proto.ConfirmEstampResponse OK
+// @Success 200 {object} dto.ConfirmEstampResponse OK
 // @Failure 400 {object} dto.ResponseBadRequestErr Invalid body request
 // @Failure 401 {object} dto.ResponseUnauthorizedErr Unauthorized
 // @Failure 500 {object} dto.ResponseInternalErr Internal server error
@@ -316,7 +279,7 @@ func (h *Handler) VerifyEstamp(ctx qr.IContext) {
 // @Security     AuthToken
 func (h *Handler) ConfirmEstamp(ctx qr.IContext) {
 	userid := ctx.UserID()
-	ce := &dto.ConfirmEstamp{}
+	ce := &dto.ConfirmEstampRequest{}
 
 	err := ctx.Bind(ce)
 

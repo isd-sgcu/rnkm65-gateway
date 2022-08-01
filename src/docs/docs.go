@@ -388,7 +388,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/estamp/:id": {
+        "/estamp/{id}": {
             "get": {
                 "security": [
                     {
@@ -1027,7 +1027,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ConfirmEstamp"
+                            "$ref": "#/definitions/dto.ConfirmEstampRequest"
                         }
                     }
                 ],
@@ -1035,7 +1035,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/proto.ConfirmEstampResponse"
+                            "$ref": "#/definitions/dto.ConfirmEstampResponse"
                         }
                     },
                     "400": {
@@ -1090,7 +1090,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.VerifyEstamp"
+                            "$ref": "#/definitions/dto.VerifyEstampRequest"
                         }
                     }
                 ],
@@ -1098,7 +1098,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/proto.VerifyEstampResponse"
+                            "$ref": "#/definitions/dto.VerifyEstampResponse"
                         }
                     },
                     "400": {
@@ -1523,12 +1523,21 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ConfirmEstamp": {
+        "dto.ConfirmEstampRequest": {
             "type": "object",
             "properties": {
                 "event_id": {
                     "type": "string",
                     "example": "ec5b9355-0b6c-11ed-b88b-0250cf8509e4"
+                }
+            }
+        },
+        "dto.ConfirmEstampResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "string",
+                    "example": "true"
                 }
             }
         },
@@ -1791,12 +1800,21 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.VerifyEstamp": {
+        "dto.VerifyEstampRequest": {
             "type": "object",
             "properties": {
                 "event_id": {
                     "type": "string",
                     "example": "ec5b9355-0b6c-11ed-b88b-0250cf8509e4"
+                }
+            }
+        },
+        "dto.VerifyEstampResponse": {
+            "type": "object",
+            "properties": {
+                "found": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
@@ -1877,14 +1895,6 @@ const docTemplate = `{
             "properties": {
                 "success": {
                     "type": "boolean"
-                }
-            }
-        },
-        "proto.ConfirmEstampResponse": {
-            "type": "object",
-            "properties": {
-                "event": {
-                    "$ref": "#/definitions/proto.Event"
                 }
             }
         },
@@ -2046,14 +2056,6 @@ const docTemplate = `{
                 },
                 "lastname": {
                     "type": "string"
-                }
-            }
-        },
-        "proto.VerifyEstampResponse": {
-            "type": "object",
-            "properties": {
-                "found": {
-                    "type": "boolean"
                 }
             }
         }

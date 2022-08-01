@@ -27,10 +27,16 @@ definitions:
         example: 1
         type: integer
     type: object
-  dto.ConfirmEstamp:
+  dto.ConfirmEstampRequest:
     properties:
       event_id:
         example: ec5b9355-0b6c-11ed-b88b-0250cf8509e4
+        type: string
+    type: object
+  dto.ConfirmEstampResponse:
+    properties:
+      success:
+        example: "true"
         type: string
     type: object
   dto.Credential:
@@ -211,11 +217,17 @@ definitions:
     required:
     - hcert
     type: object
-  dto.VerifyEstamp:
+  dto.VerifyEstampRequest:
     properties:
       event_id:
         example: ec5b9355-0b6c-11ed-b88b-0250cf8509e4
         type: string
+    type: object
+  dto.VerifyEstampResponse:
+    properties:
+      found:
+        example: true
+        type: boolean
     type: object
   dto.VerifyTicket:
     properties:
@@ -268,11 +280,6 @@ definitions:
     properties:
       success:
         type: boolean
-    type: object
-  proto.ConfirmEstampResponse:
-    properties:
-      event:
-        $ref: '#/definitions/proto.Event'
     type: object
   proto.Event:
     properties:
@@ -378,11 +385,6 @@ definitions:
         type: string
       lastname:
         type: string
-    type: object
-  proto.VerifyEstampResponse:
-    properties:
-      found:
-        type: boolean
     type: object
 info:
   contact:
@@ -627,7 +629,7 @@ paths:
       summary: Get user estamp
       tags:
       - event
-  /estamp/:id:
+  /estamp/{id}:
     get:
       consumes:
       - application/json
@@ -1031,14 +1033,14 @@ paths:
         name: token
         required: true
         schema:
-          $ref: '#/definitions/dto.ConfirmEstamp'
+          $ref: '#/definitions/dto.ConfirmEstampRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/proto.ConfirmEstampResponse'
+            $ref: '#/definitions/dto.ConfirmEstampResponse'
         "400":
           description: Bad Request
           schema:
@@ -1071,14 +1073,14 @@ paths:
         name: event_id
         required: true
         schema:
-          $ref: '#/definitions/dto.VerifyEstamp'
+          $ref: '#/definitions/dto.VerifyEstampRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/proto.VerifyEstampResponse'
+            $ref: '#/definitions/dto.VerifyEstampResponse'
         "400":
           description: Bad Request
           schema:

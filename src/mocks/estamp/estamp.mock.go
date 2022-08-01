@@ -87,10 +87,10 @@ func (c *ContextMock) Bind(v interface{}) error {
 			*v.(*dto.UserDto) = *args.Get(0).(*dto.UserDto)
 		case *dto.Verify:
 			*v.(*dto.Verify) = *args.Get(0).(*dto.Verify)
-		case *dto.VerifyEstamp:
-			*v.(*dto.VerifyEstamp) = *args.Get(0).(*dto.VerifyEstamp)
-		case *dto.ConfirmEstamp:
-			*v.(*dto.ConfirmEstamp) = *args.Get(0).(*dto.ConfirmEstamp)
+		case *dto.VerifyEstampRequest:
+			*v.(*dto.VerifyEstampRequest) = *args.Get(0).(*dto.VerifyEstampRequest)
+		case *dto.ConfirmEstampRequest:
+			*v.(*dto.ConfirmEstampRequest) = *args.Get(0).(*dto.ConfirmEstampRequest)
 		}
 	}
 

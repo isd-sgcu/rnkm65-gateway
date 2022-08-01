@@ -563,76 +563,15 @@ func (t *UserHandlerTest) TestFindUserUnavailable() {
 	assert.Equal(t.T(), t.ServiceDownErr, c.V)
 }
 
-func (t *UserHandlerTest) TestVerifyEstampSuccess() {
-	want := &proto.VerifyEstampResponse{
-		Found: true,
-	}
-
-	s := &mock.ServiceMock{}
-	s.On("VerifyEstamp", t.User.Id, t.Events[0].Id).Return(want, nil)
-
-	c := &mock.ContextMock{}
-	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.VerifyEstamp{}).Return(&dto.VerifyEstamp{
-		EventId: t.Events[0].Id,
-	}, nil)
-
-	v, _ := validator.NewValidator()
-
-	hdr := NewHandler(s, v)
-
-	hdr.VerifyEstamp(c)
-
-	assert.Equal(t.T(), http.StatusOK, c.Status)
-	assert.Equal(t.T(), want, c.V)
-}
-
-func (t *UserHandlerTest) TestVerifyEstampBadRequest() {
-	s := &mock.ServiceMock{}
-
-	c := &mock.ContextMock{}
-	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.VerifyEstamp{}).Return(nil, errors.New(""))
-
-	v, _ := validator.NewValidator()
-
-	hdr := NewHandler(s, v)
-
-	hdr.VerifyEstamp(c)
-
-	assert.Equal(t.T(), http.StatusBadRequest, c.Status)
-}
-
-func (t *UserHandlerTest) TestVerifyEstampInnerError() {
-	s := &mock.ServiceMock{}
-	s.On("VerifyEstamp", t.User.Id, t.Events[0].Id).Return(nil, t.ServiceDownErr)
-
-	c := &mock.ContextMock{}
-	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.VerifyEstamp{}).Return(&dto.VerifyEstamp{
-		EventId: t.Events[0].Id,
-	}, nil)
-
-	v, _ := validator.NewValidator()
-
-	hdr := NewHandler(s, v)
-
-	hdr.VerifyEstamp(c)
-
-	assert.Equal(t.T(), http.StatusServiceUnavailable, c.Status)
-}
-
 func (t *UserHandlerTest) TestConfirmEstampSuccess() {
-	want := &proto.ConfirmEstampResponse{
-		Event: t.Events[0],
-	}
+	want := &proto.ConfirmEstampResponse{}
 
 	s := &mock.ServiceMock{}
 	s.On("ConfirmEstamp", t.User.Id, t.Events[0].Id).Return(want, nil)
 
 	c := &mock.ContextMock{}
 	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.ConfirmEstamp{}).Return(&dto.ConfirmEstamp{
+	c.On("Bind", &dto.ConfirmEstampRequest{}).Return(&dto.ConfirmEstampRequest{
 		EventId: t.Events[0].Id,
 	}, nil)
 
@@ -651,7 +590,7 @@ func (t *UserHandlerTest) TestConfirmEstampBadRequest() {
 
 	c := &mock.ContextMock{}
 	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.ConfirmEstamp{}).Return(nil, errors.New(""))
+	c.On("Bind", &dto.ConfirmEstampRequest{}).Return(nil, errors.New(""))
 
 	v, _ := validator.NewValidator()
 
@@ -668,7 +607,7 @@ func (t *UserHandlerTest) TestConfirmEstampInnerError() {
 
 	c := &mock.ContextMock{}
 	c.On("UserID").Return(t.User.Id)
-	c.On("Bind", &dto.ConfirmEstamp{}).Return(&dto.ConfirmEstamp{
+	c.On("Bind", &dto.ConfirmEstampRequest{}).Return(&dto.ConfirmEstampRequest{
 		EventId: t.Events[0].Id,
 	}, nil)
 
