@@ -49,6 +49,7 @@ func (t *UserHandlerTest) SetupTest() {
 		Disease:         faker.Word(),
 		ImageUrl:        faker.URL(),
 		CanSelectBaan:   true,
+		BaanId:          faker.UUIDDigit(),
 	}
 
 	t.Events = make([]*proto.Event, 3)

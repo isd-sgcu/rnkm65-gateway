@@ -146,7 +146,7 @@ func main() {
 
 	bnClient := proto.NewBaanServiceClient(backendConn)
 	bnSrv := baanSrv.NewService(bnClient)
-	bnHdr := baanHdr.NewHandler(bnSrv)
+	bnHdr := baanHdr.NewHandler(bnSrv, userSrv)
 
 	checkinClient := proto.NewCheckinServiceClient(backendConn)
 	checkinSrv := ciSrv.NewService(checkinClient)
