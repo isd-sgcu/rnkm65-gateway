@@ -239,7 +239,7 @@ func (h *Handler) Delete(ctx IContext) {
 
 // Get estamp overview id on what user has
 // @Summary Get user estamp
-// @Description Get estamp id overview on what user has
+// @Description Get estamp id overview on what user has *Return {} with success status code if user has zero stamp
 // @Tags event
 // @Accept json
 // @Produce json

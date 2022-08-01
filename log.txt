@@ -1,0 +1,667 @@
+go vet ./...
+go test  -v -coverpkg ./src/app/... -coverprofile coverage.out -covermode count ./src/app/...
+?   	github.com/isd-sgcu/rnkm65-gateway/src/app/client/vaccine	[no test files]
+?   	github.com/isd-sgcu/rnkm65-gateway/src/app/dto	[no test files]
+=== RUN   TestAuthHandler
+=== RUN   TestAuthHandler/TestRedeemRefreshTokenGrpc
+=== RUN   TestAuthHandler/TestRedeemRefreshTokenInvalid
+=== RUN   TestAuthHandler/TestRedeemRefreshTokenSuccess
+=== RUN   TestAuthHandler/TestValidateGrpcErrUserService
+=== RUN   TestAuthHandler/TestValidateInvalidUser
+=== RUN   TestAuthHandler/TestValidateSuccess
+=== RUN   TestAuthHandler/TestVerifyTicketGrpcErr
+=== RUN   TestAuthHandler/TestVerifyTicketInvalid
+=== RUN   TestAuthHandler/TestVerifyTicketSuccess
+--- PASS: TestAuthHandler (0.00s)
+    --- PASS: TestAuthHandler/TestRedeemRefreshTokenGrpc (0.00s)
+    --- PASS: TestAuthHandler/TestRedeemRefreshTokenInvalid (0.00s)
+    --- PASS: TestAuthHandler/TestRedeemRefreshTokenSuccess (0.00s)
+    --- PASS: TestAuthHandler/TestValidateGrpcErrUserService (0.00s)
+    --- PASS: TestAuthHandler/TestValidateInvalidUser (0.00s)
+    --- PASS: TestAuthHandler/TestValidateSuccess (0.00s)
+    --- PASS: TestAuthHandler/TestVerifyTicketGrpcErr (0.00s)
+    --- PASS: TestAuthHandler/TestVerifyTicketInvalid (0.00s)
+    --- PASS: TestAuthHandler/TestVerifyTicketSuccess (0.00s)
+PASS
+coverage: 4.4% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth	0.293s	coverage: 4.4% of statements in ./src/app/...
+=== RUN   TestBaanHandler
+=== RUN   TestBaanHandler/TestFindAllBaanSuccess
+=== RUN   TestBaanHandler/TestFindOneBaan
+=== RUN   TestBaanHandler/TestFindOneBadReqeust
+=== RUN   TestBaanHandler/TestFindOneFoundErr
+=== RUN   TestBaanHandler/TestFindOneGrpcErr
+=== RUN   TestBaanHandler/TestGetUserBaanGrpcErr
+=== RUN   TestBaanHandler/TestGetUserBaanNotHaveBaan
+=== RUN   TestBaanHandler/TestGetUserBaanSuccess
+--- PASS: TestBaanHandler (0.00s)
+    --- PASS: TestBaanHandler/TestFindAllBaanSuccess (0.00s)
+    --- PASS: TestBaanHandler/TestFindOneBaan (0.00s)
+    --- PASS: TestBaanHandler/TestFindOneBadReqeust (0.00s)
+    --- PASS: TestBaanHandler/TestFindOneFoundErr (0.00s)
+    --- PASS: TestBaanHandler/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestBaanHandler/TestGetUserBaanGrpcErr (0.00s)
+    --- PASS: TestBaanHandler/TestGetUserBaanNotHaveBaan (0.00s)
+    --- PASS: TestBaanHandler/TestGetUserBaanSuccess (0.00s)
+PASS
+coverage: 2.3% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/baan	0.367s	coverage: 2.3% of statements in ./src/app/...
+=== RUN   TestCheckinHandler
+=== RUN   TestCheckinHandler/TestCheckinConfirmBadRequest
+=== RUN   TestCheckinHandler/TestCheckinConfirmSuccess
+=== RUN   TestCheckinHandler/TestCheckinConfirmThrowInnerError
+=== RUN   TestCheckinHandler/TestCheckinVerifyBadRequest
+=== RUN   TestCheckinHandler/TestCheckinVerifySuccess
+=== RUN   TestCheckinHandler/TestCheckinVerifyThrowInnerError
+--- PASS: TestCheckinHandler (0.01s)
+    --- PASS: TestCheckinHandler/TestCheckinConfirmBadRequest (0.00s)
+    --- PASS: TestCheckinHandler/TestCheckinConfirmSuccess (0.00s)
+    --- PASS: TestCheckinHandler/TestCheckinConfirmThrowInnerError (0.00s)
+    --- PASS: TestCheckinHandler/TestCheckinVerifyBadRequest (0.00s)
+    --- PASS: TestCheckinHandler/TestCheckinVerifySuccess (0.00s)
+    --- PASS: TestCheckinHandler/TestCheckinVerifyThrowInnerError (0.00s)
+PASS
+coverage: 4.0% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/checkin	0.348s	coverage: 4.0% of statements in ./src/app/...
+=== RUN   TestEstampHandler
+=== RUN   TestEstampHandler/TestFindByIdBadRequest
+=== RUN   TestEstampHandler/TestFindByIdForbidden
+=== RUN   TestEstampHandler/TestFindByIdInternal
+=== RUN   TestEstampHandler/TestFindByIdNotFound
+=== RUN   TestEstampHandler/TestFindByIdSuccess
+=== RUN   TestEstampHandler/TestFindByIdUnavailable
+=== RUN   TestEstampHandler/TestVerifyEstampBadRequest
+=== RUN   TestEstampHandler/TestVerifyEstampInnerError
+=== RUN   TestEstampHandler/TestVerifyEstampSuccess
+--- PASS: TestEstampHandler (0.01s)
+    --- PASS: TestEstampHandler/TestFindByIdBadRequest (0.00s)
+    --- PASS: TestEstampHandler/TestFindByIdForbidden (0.00s)
+    --- PASS: TestEstampHandler/TestFindByIdInternal (0.00s)
+    --- PASS: TestEstampHandler/TestFindByIdNotFound (0.00s)
+    --- PASS: TestEstampHandler/TestFindByIdSuccess (0.00s)
+    --- PASS: TestEstampHandler/TestFindByIdUnavailable (0.00s)
+    --- PASS: TestEstampHandler/TestVerifyEstampBadRequest (0.00s)
+    --- PASS: TestEstampHandler/TestVerifyEstampInnerError (0.00s)
+    --- PASS: TestEstampHandler/TestVerifyEstampSuccess (0.00s)
+PASS
+coverage: 3.9% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/estamp	0.309s	coverage: 3.9% of statements in ./src/app/...
+=== RUN   TestUserHandler
+=== RUN   TestUserHandler/TestUploadFailed
+=== RUN   TestUserHandler/TestUploadGrpcErr
+=== RUN   TestUserHandler/TestUploadInvalidFile
+{"level":"error","error":"Invalid content","service":"content","module":"upload image","time":"2022-08-02T04:26:30+07:00","message":"Invalid content"}
+=== RUN   TestUserHandler/TestUploadSuccess
+--- PASS: TestUserHandler (0.01s)
+    --- PASS: TestUserHandler/TestUploadFailed (0.00s)
+    --- PASS: TestUserHandler/TestUploadGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestUploadInvalidFile (0.00s)
+    --- PASS: TestUserHandler/TestUploadSuccess (0.00s)
+PASS
+coverage: 2.7% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/file	0.383s	coverage: 2.7% of statements in ./src/app/...
+=== RUN   TestGroupHandler
+=== RUN   TestGroupHandler/TestDeleteMemberForbidden
+=== RUN   TestGroupHandler/TestDeleteMemberGrpcErr
+=== RUN   TestGroupHandler/TestDeleteMemberInvalidID
+=== RUN   TestGroupHandler/TestDeleteMemberNotFound
+=== RUN   TestGroupHandler/TestDeleteMemberSuccess
+=== RUN   TestGroupHandler/TestFindByTokenGrpcErr
+=== RUN   TestGroupHandler/TestFindByTokenNotFound
+=== RUN   TestGroupHandler/TestFindByTokenSuccess
+=== RUN   TestGroupHandler/TestFindOneGrpcErr
+=== RUN   TestGroupHandler/TestFindOneNotFound
+=== RUN   TestGroupHandler/TestFindOneSuccess
+=== RUN   TestGroupHandler/TestJoinForbidden
+=== RUN   TestGroupHandler/TestJoinGrpcErr
+=== RUN   TestGroupHandler/TestJoinInvalidId
+=== RUN   TestGroupHandler/TestJoinNotFound
+=== RUN   TestGroupHandler/TestJoinSuccess
+=== RUN   TestGroupHandler/TestLeaveForbidden
+=== RUN   TestGroupHandler/TestLeaveGrpcErr
+=== RUN   TestGroupHandler/TestLeaveInternalErr
+=== RUN   TestGroupHandler/TestLeaveInvalidId
+=== RUN   TestGroupHandler/TestLeaveNotFound
+=== RUN   TestGroupHandler/TestLeaveSuccess
+=== RUN   TestGroupHandler/TestSelectBaanFailed
+=== RUN   TestGroupHandler/TestSelectBaanForbiddenActio
+=== RUN   TestGroupHandler/TestSelectBaanInternalErr
+=== RUN   TestGroupHandler/TestSelectBaanInvalidInput
+=== RUN   TestGroupHandler/TestSelectBaanSuccess
+--- PASS: TestGroupHandler (0.01s)
+    --- PASS: TestGroupHandler/TestDeleteMemberForbidden (0.00s)
+    --- PASS: TestGroupHandler/TestDeleteMemberGrpcErr (0.00s)
+    --- PASS: TestGroupHandler/TestDeleteMemberInvalidID (0.00s)
+    --- PASS: TestGroupHandler/TestDeleteMemberNotFound (0.00s)
+    --- PASS: TestGroupHandler/TestDeleteMemberSuccess (0.00s)
+    --- PASS: TestGroupHandler/TestFindByTokenGrpcErr (0.00s)
+    --- PASS: TestGroupHandler/TestFindByTokenNotFound (0.00s)
+    --- PASS: TestGroupHandler/TestFindByTokenSuccess (0.00s)
+    --- PASS: TestGroupHandler/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestGroupHandler/TestFindOneNotFound (0.00s)
+    --- PASS: TestGroupHandler/TestFindOneSuccess (0.00s)
+    --- PASS: TestGroupHandler/TestJoinForbidden (0.00s)
+    --- PASS: TestGroupHandler/TestJoinGrpcErr (0.00s)
+    --- PASS: TestGroupHandler/TestJoinInvalidId (0.00s)
+    --- PASS: TestGroupHandler/TestJoinNotFound (0.00s)
+    --- PASS: TestGroupHandler/TestJoinSuccess (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveForbidden (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveGrpcErr (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveInternalErr (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveInvalidId (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveNotFound (0.00s)
+    --- PASS: TestGroupHandler/TestLeaveSuccess (0.00s)
+    --- PASS: TestGroupHandler/TestSelectBaanFailed (0.00s)
+    --- PASS: TestGroupHandler/TestSelectBaanForbiddenActio (0.00s)
+    --- PASS: TestGroupHandler/TestSelectBaanInternalErr (0.00s)
+    --- PASS: TestGroupHandler/TestSelectBaanInvalidInput (0.00s)
+    --- PASS: TestGroupHandler/TestSelectBaanSuccess (0.00s)
+PASS
+coverage: 7.5% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/group	0.330s	coverage: 7.5% of statements in ./src/app/...
+=== RUN   TestHealthCheckHandler
+=== RUN   TestHealthCheckHandler/TestCallHealthCheck
+--- PASS: TestHealthCheckHandler (0.00s)
+    --- PASS: TestHealthCheckHandler/TestCallHealthCheck (0.00s)
+PASS
+coverage: 0.3% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/health-check	0.309s	coverage: 0.3% of statements in ./src/app/...
+=== RUN   TestUserHandler
+=== RUN   TestUserHandler/TestConfirmEstampBadRequest
+=== RUN   TestUserHandler/TestConfirmEstampInnerError
+=== RUN   TestUserHandler/TestConfirmEstampSuccess
+=== RUN   TestUserHandler/TestCreateGrpcErr
+=== RUN   TestUserHandler/TestCreateOrUpdateGrpcErr
+=== RUN   TestUserHandler/TestCreateOrUpdateSuccess
+=== RUN   TestUserHandler/TestCreateOrUpdateValidateErr
+{"level":"error","module":"validate","status":400,"error":{"message":"ID is not uuid","failed_field":"ID","value":"abc"},"time":"2022-08-02T04:26:31+07:00","message":"Validate failed"}
+&{ID is not uuid ID abc}
+=== RUN   TestUserHandler/TestCreateSuccess
+=== RUN   TestUserHandler/TestCreateValidateErr
+{"level":"error","module":"validate","status":400,"error":{"message":"Email must be a valid email address","failed_field":"Email","value":""},"time":"2022-08-02T04:26:31+07:00","message":"Validate failed"}
+=== RUN   TestUserHandler/TestDeleteGrpcErr
+=== RUN   TestUserHandler/TestDeleteInvalidID
+=== RUN   TestUserHandler/TestDeleteNotFound
+=== RUN   TestUserHandler/TestDeleteSuccess
+=== RUN   TestUserHandler/TestFindOneFoundErr
+=== RUN   TestUserHandler/TestFindOneGrpcErr
+=== RUN   TestUserHandler/TestFindOneInternalErr
+=== RUN   TestUserHandler/TestFindOneUser
+=== RUN   TestUserHandler/TestFindUserInternal
+=== RUN   TestUserHandler/TestFindUserUnavailable
+=== RUN   TestUserHandler/TestGetUserEstampSuccess
+=== RUN   TestUserHandler/TestUpdateGrpcErr
+=== RUN   TestUserHandler/TestUpdateNotFound
+=== RUN   TestUserHandler/TestUpdateSuccess
+--- PASS: TestUserHandler (0.02s)
+    --- PASS: TestUserHandler/TestConfirmEstampBadRequest (0.00s)
+    --- PASS: TestUserHandler/TestConfirmEstampInnerError (0.00s)
+    --- PASS: TestUserHandler/TestConfirmEstampSuccess (0.00s)
+    --- PASS: TestUserHandler/TestCreateGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestCreateOrUpdateGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestCreateOrUpdateSuccess (0.00s)
+    --- PASS: TestUserHandler/TestCreateOrUpdateValidateErr (0.00s)
+    --- PASS: TestUserHandler/TestCreateSuccess (0.00s)
+    --- PASS: TestUserHandler/TestCreateValidateErr (0.00s)
+    --- PASS: TestUserHandler/TestDeleteGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestDeleteInvalidID (0.00s)
+    --- PASS: TestUserHandler/TestDeleteNotFound (0.00s)
+    --- PASS: TestUserHandler/TestDeleteSuccess (0.00s)
+    --- PASS: TestUserHandler/TestFindOneFoundErr (0.00s)
+    --- PASS: TestUserHandler/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestFindOneInternalErr (0.00s)
+    --- PASS: TestUserHandler/TestFindOneUser (0.00s)
+    --- PASS: TestUserHandler/TestFindUserInternal (0.00s)
+    --- PASS: TestUserHandler/TestFindUserUnavailable (0.00s)
+    --- PASS: TestUserHandler/TestGetUserEstampSuccess (0.00s)
+    --- PASS: TestUserHandler/TestUpdateGrpcErr (0.00s)
+    --- PASS: TestUserHandler/TestUpdateNotFound (0.00s)
+    --- PASS: TestUserHandler/TestUpdateSuccess (0.00s)
+PASS
+coverage: 11.8% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/user	0.420s	coverage: 11.8% of statements in ./src/app/...
+=== RUN   TestVaccinceHandler
+=== RUN   TestVaccinceHandler/TestVerifyGrpcErr
+=== RUN   TestVaccinceHandler/TestVerifyNotFound
+=== RUN   TestVaccinceHandler/TestVerifySuccess
+--- PASS: TestVaccinceHandler (0.00s)
+    --- PASS: TestVaccinceHandler/TestVerifyGrpcErr (0.00s)
+    --- PASS: TestVaccinceHandler/TestVerifyNotFound (0.00s)
+    --- PASS: TestVaccinceHandler/TestVerifySuccess (0.00s)
+PASS
+coverage: 3.4% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/handler/vaccine	0.358s	coverage: 3.4% of statements in ./src/app/...
+=== RUN   TestAuthGuard
+=== RUN   TestAuthGuard/TestConfigFail
+=== RUN   TestAuthGuard/TestConfigSuccess
+=== RUN   TestAuthGuard/TestValidateFailed
+=== RUN   TestAuthGuard/TestValidateSkippedFromExcludePath
+=== RUN   TestAuthGuard/TestValidateSkippedFromExcludePathWithID
+=== RUN   TestAuthGuard/TestValidateSuccess
+=== RUN   TestAuthGuard/TestValidateTokenGrpcErr
+=== RUN   TestAuthGuard/TestValidateTokenNotIncluded
+--- PASS: TestAuthGuard (0.01s)
+    --- PASS: TestAuthGuard/TestConfigFail (0.00s)
+    --- PASS: TestAuthGuard/TestConfigSuccess (0.01s)
+    --- PASS: TestAuthGuard/TestValidateFailed (0.00s)
+    --- PASS: TestAuthGuard/TestValidateSkippedFromExcludePath (0.00s)
+    --- PASS: TestAuthGuard/TestValidateSkippedFromExcludePathWithID (0.00s)
+    --- PASS: TestAuthGuard/TestValidateSuccess (0.00s)
+    --- PASS: TestAuthGuard/TestValidateTokenGrpcErr (0.00s)
+    --- PASS: TestAuthGuard/TestValidateTokenNotIncluded (0.00s)
+PASS
+coverage: 7.1% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/middleware/auth	0.330s	coverage: 7.1% of statements in ./src/app/...
+=== RUN   TestAuthRouter
+=== RUN   TestAuthRouter/TestGetAuthRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | GET     | /auth           
+04:26:36 | 404 |      0s |         0.0.0.0 | GET     | /not-found       | Cannot GET /not-found
+=== RUN   TestAuthRouter/TestPostAuthRouter
+04:26:36 | 201 |      0s |         0.0.0.0 | POST    | /auth           
+04:26:36 | 404 |      0s |         0.0.0.0 | POST    | /not-found       | Cannot POST /not-found
+--- PASS: TestAuthRouter (0.01s)
+    --- PASS: TestAuthRouter/TestGetAuthRouter (0.00s)
+    --- PASS: TestAuthRouter/TestPostAuthRouter (0.00s)
+=== RUN   TestBaanRouter
+=== RUN   TestBaanRouter/TestPostBaanRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | GET     | /baan           
+04:26:36 | 404 |      0s |         0.0.0.0 | GET     | /not-found       | Cannot GET /not-found
+--- PASS: TestBaanRouter (0.00s)
+    --- PASS: TestBaanRouter/TestPostBaanRouter (0.00s)
+=== RUN   TestFileRouter
+=== RUN   TestFileRouter/TestPostFileRouter
+04:26:36 | 201 |      0s |         0.0.0.0 | POST    | /file           
+04:26:36 | 404 |      0s |         0.0.0.0 | POST    | /not-found       | Cannot POST /not-found
+--- PASS: TestFileRouter (0.00s)
+    --- PASS: TestFileRouter/TestPostFileRouter (0.00s)
+=== RUN   TestGroupRouter
+=== RUN   TestGroupRouter/TestDeleteGroupRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | DELETE  | /group/leave    
+04:26:36 | 404 |      0s |         0.0.0.0 | DELETE  | /not-found       | Cannot DELETE /not-found
+=== RUN   TestGroupRouter/TestGetGroupRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | GET     | /group          
+04:26:36 | 404 |      0s |         0.0.0.0 | GET     | /not-found       | Cannot GET /not-found
+=== RUN   TestGroupRouter/TestPostGroupRouter
+04:26:36 | 201 |      0s |         0.0.0.0 | POST    | /group          
+04:26:36 | 404 |      0s |         0.0.0.0 | POST    | /not-found       | Cannot POST /not-found
+=== RUN   TestGroupRouter/TestPutGroupRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | PUT     | /group          
+04:26:36 | 404 |      0s |         0.0.0.0 | PUT     | /not-found       | Cannot PUT /not-found
+--- PASS: TestGroupRouter (0.01s)
+    --- PASS: TestGroupRouter/TestDeleteGroupRouter (0.00s)
+    --- PASS: TestGroupRouter/TestGetGroupRouter (0.00s)
+    --- PASS: TestGroupRouter/TestPostGroupRouter (0.00s)
+    --- PASS: TestGroupRouter/TestPutGroupRouter (0.00s)
+=== RUN   TestHealthCheckRouter
+=== RUN   TestHealthCheckRouter/TestCheckinConfirmRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | POST    | /qr/checkin/confirm 
+=== RUN   TestHealthCheckRouter/TestCheckinVerifyRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | POST    | /qr/checkin/verify 
+=== RUN   TestHealthCheckRouter/TestHealthCheckRouter
+    suite.go:63: test panicked: runtime error: invalid memory address or nil pointer dereference
+        goroutine 84 [running]:
+        runtime/debug.Stack()
+        	C:/Program Files/Go/src/runtime/debug/stack.go:24 +0x65
+        github.com/stretchr/testify/suite.failOnPanic(0xc00019fa00)
+        	C:/Users/User/go/pkg/mod/github.com/stretchr/testify@v1.7.1/suite/suite.go:63 +0x3e
+        panic({0x12af0c0, 0x2ced500})
+        	C:/Program Files/Go/src/runtime/panic.go:1038 +0x215
+        github.com/isd-sgcu/rnkm65-gateway/src/app/router.(*HealthCheckRouterTest).TestHealthCheckRouter(0xc0018d5f80)
+        	C:/Users/User/Desktop/ISD-CU/rnkm65-gateway/src/app/router/health-check.router_test.go:55 +0x20f
+        reflect.Value.call({0xc00194bb60, 0xc0018edf58, 0x10}, {0x1388e02, 0x4}, {0xc0018d7e70, 0x1, 0xc0018d7d80})
+        	C:/Program Files/Go/src/reflect/value.go:543 +0x814
+        reflect.Value.Call({0xc00194bb60, 0xc0018edf58, 0xc0018d5f80}, {0xc0018d7e70, 0x1, 0x1})
+        	C:/Program Files/Go/src/reflect/value.go:339 +0xc5
+        github.com/stretchr/testify/suite.Run.func1(0xc00019fa00)
+        	C:/Users/User/go/pkg/mod/github.com/stretchr/testify@v1.7.1/suite/suite.go:158 +0x4b6
+        testing.tRunner(0xc00019fa00, 0xc0018eacf0)
+        	C:/Program Files/Go/src/testing/testing.go:1259 +0x102
+        created by testing.(*T).Run
+        	C:/Program Files/Go/src/testing/testing.go:1306 +0x35a
+--- FAIL: TestHealthCheckRouter (0.01s)
+    --- PASS: TestHealthCheckRouter/TestCheckinConfirmRouter (0.00s)
+    --- PASS: TestHealthCheckRouter/TestCheckinVerifyRouter (0.00s)
+    --- FAIL: TestHealthCheckRouter/TestHealthCheckRouter (0.00s)
+=== RUN   TestQrRouter
+    suite.go:190: warning: no tests to run
+--- PASS: TestQrRouter (0.00s)
+=== RUN   TestUserRouter
+=== RUN   TestUserRouter/TestDeleteUserRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | DELETE  | /user           
+04:26:36 | 404 |      0s |         0.0.0.0 | DELETE  | /not-found       | Cannot DELETE /not-found
+=== RUN   TestUserRouter/TestGetUserRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | GET     | /user           
+04:26:36 | 404 |      0s |         0.0.0.0 | GET     | /not-found       | Cannot GET /not-found
+=== RUN   TestUserRouter/TestPatchUserRouter
+04:26:36 | 200 |     1ms |         0.0.0.0 | PATCH   | /user           
+    suite.go:63: test panicked: runtime error: invalid memory address or nil pointer dereference
+        goroutine 97 [running]:
+        runtime/debug.Stack()
+        	C:/Program Files/Go/src/runtime/debug/stack.go:24 +0x65
+        github.com/stretchr/testify/suite.failOnPanic(0xc000584b60)
+        	C:/Users/User/go/pkg/mod/github.com/stretchr/testify@v1.7.1/suite/suite.go:63 +0x3e
+        panic({0x12af0c0, 0x2ced500})
+        	C:/Program Files/Go/src/runtime/panic.go:1038 +0x215
+        github.com/isd-sgcu/rnkm65-gateway/src/app/router.(*UserRouterTest).TestPatchUserRouter(0xc00199ed68)
+        	C:/Users/User/Desktop/ISD-CU/rnkm65-gateway/src/app/router/user.router_test.go:182 +0x24f
+        reflect.Value.call({0xc001a19140, 0xc0019ecd30, 0x10}, {0x1388e02, 0x4}, {0xc001a61e70, 0x1, 0xc001a61d80})
+        	C:/Program Files/Go/src/reflect/value.go:543 +0x814
+        reflect.Value.Call({0xc001a19140, 0xc0019ecd30, 0xc00199ed68}, {0xc001a61e70, 0x1, 0x1})
+        	C:/Program Files/Go/src/reflect/value.go:339 +0xc5
+        github.com/stretchr/testify/suite.Run.func1(0xc000584b60)
+        	C:/Users/User/go/pkg/mod/github.com/stretchr/testify@v1.7.1/suite/suite.go:158 +0x4b6
+        testing.tRunner(0xc000584b60, 0xc0018eb5f0)
+        	C:/Program Files/Go/src/testing/testing.go:1259 +0x102
+        created by testing.(*T).Run
+        	C:/Program Files/Go/src/testing/testing.go:1306 +0x35a
+=== RUN   TestUserRouter/TestPostUserRouter
+04:26:36 | 201 |      0s |         0.0.0.0 | POST    | /user           
+04:26:36 | 404 |      0s |         0.0.0.0 | POST    | /not-found       | Cannot POST /not-found
+=== RUN   TestUserRouter/TestPutUserRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | PUT     | /user           
+04:26:36 | 404 |      0s |         0.0.0.0 | PUT     | /not-found       | Cannot PUT /not-found
+--- FAIL: TestUserRouter (0.01s)
+    --- PASS: TestUserRouter/TestDeleteUserRouter (0.00s)
+    --- PASS: TestUserRouter/TestGetUserRouter (0.00s)
+    --- FAIL: TestUserRouter/TestPatchUserRouter (0.00s)
+    --- PASS: TestUserRouter/TestPostUserRouter (0.00s)
+    --- PASS: TestUserRouter/TestPutUserRouter (0.00s)
+=== RUN   TestVaccineRouter
+=== RUN   TestVaccineRouter/TestPostVaccineRouter
+04:26:36 | 200 |      0s |         0.0.0.0 | POST    | /vaccine/verify 
+04:26:36 | 404 |      0s |         0.0.0.0 | POST    | /not-found       | Cannot POST /not-found
+--- PASS: TestVaccineRouter (0.00s)
+    --- PASS: TestVaccineRouter/TestPostVaccineRouter (0.00s)
+FAIL
+coverage: 7.0% of statements in ./src/app/...
+FAIL	github.com/isd-sgcu/rnkm65-gateway/src/app/router	0.365s
+=== RUN   TestAuthService
+=== RUN   TestAuthService/TestRefreshTokenGrpcErr
+{"level":"error","error":"cannot connect to auth service","service":"auth","module":"refresh token","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestAuthService/TestRefreshTokenInvalidToken
+=== RUN   TestAuthService/TestRefreshTokenSuccess
+=== RUN   TestAuthService/TestValidateGrpcErr
+{"level":"error","error":"cannot connect to auth service","service":"auth","module":"validate","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestAuthService/TestValidateSuccess
+=== RUN   TestAuthService/TestVerifyTicketGrpcErr
+{"level":"error","error":"cannot connect to auth service","service":"auth","module":"verify ticket","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestAuthService/TestVerifyTicketInvalid
+{"level":"error","error":"rpc error: code = Unauthenticated desc = Invalid ticket","service":"auth","module":"verify ticket","time":"2022-08-02T04:26:35+07:00","message":"someone is trying to login"}
+=== RUN   TestAuthService/TestVerifyTicketSuccess
+--- PASS: TestAuthService (0.01s)
+    --- PASS: TestAuthService/TestRefreshTokenGrpcErr (0.00s)
+    --- PASS: TestAuthService/TestRefreshTokenInvalidToken (0.00s)
+    --- PASS: TestAuthService/TestRefreshTokenSuccess (0.00s)
+    --- PASS: TestAuthService/TestValidateGrpcErr (0.00s)
+    --- PASS: TestAuthService/TestValidateSuccess (0.00s)
+    --- PASS: TestAuthService/TestVerifyTicketGrpcErr (0.00s)
+    --- PASS: TestAuthService/TestVerifyTicketInvalid (0.00s)
+    --- PASS: TestAuthService/TestVerifyTicketSuccess (0.00s)
+PASS
+coverage: 3.6% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/auth	0.565s	coverage: 3.6% of statements in ./src/app/...
+=== RUN   TestBaanService
+=== RUN   TestBaanService/TestFindAllSuccess
+=== RUN   TestBaanService/TestFindOneGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"findOne","baan_id":"5c0c6c325bba455984f32630cf69ec9f","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestBaanService/TestFindOneNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Baan not found","service":"baan","module":"find one","baan_id":"77530bc7bd94465b93f5d68f9e93ce07","time":"2022-08-02T04:26:35+07:00","message":"Not found baan"}
+=== RUN   TestBaanService/TestFindOneSuccess
+--- PASS: TestBaanService (0.01s)
+    --- PASS: TestBaanService/TestFindAllSuccess (0.00s)
+    --- PASS: TestBaanService/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestBaanService/TestFindOneNotFound (0.00s)
+    --- PASS: TestBaanService/TestFindOneSuccess (0.00s)
+PASS
+coverage: 2.0% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/baan	0.372s	coverage: 2.0% of statements in ./src/app/...
+=== RUN   TestCheckin
+=== RUN   TestCheckin/TestCheckinConfirmGrpcError
+{"level":"error","error":"rpc error: code = Unavailable desc = Service is down","service":"checkin","module":"checkinconfirm","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestCheckin/TestCheckinConfirmInternalError
+{"level":"error","error":"rpc error: code = Internal desc = Internal Server Error","service":"checkin","module":"checkinverify","time":"2022-08-02T04:26:35+07:00","message":"Unhandled Error (Possibly invalid user id)"}
+=== RUN   TestCheckin/TestCheckinConfirmInvalidCheckinType
+=== RUN   TestCheckin/TestCheckinConfirmInvalidToken
+=== RUN   TestCheckin/TestCheckinConfirmSuccess
+=== RUN   TestCheckin/TestCheckinVerifyGrpcErr
+{"level":"error","error":"rpc error: code = Unavailable desc = Service is down","service":"checkin","module":"checkinverify","time":"2022-08-02T04:26:35+07:00","message":"Error while connecting to service"}
+=== RUN   TestCheckin/TestCheckinVerifyInternalError
+{"level":"error","error":"rpc error: code = Internal desc = Internal Server Error","service":"checkin","module":"checkinverify","time":"2022-08-02T04:26:35+07:00","message":"Internal Server Error"}
+=== RUN   TestCheckin/TestCheckinVerifySuccess
+--- PASS: TestCheckin (0.00s)
+    --- PASS: TestCheckin/TestCheckinConfirmGrpcError (0.00s)
+    --- PASS: TestCheckin/TestCheckinConfirmInternalError (0.00s)
+    --- PASS: TestCheckin/TestCheckinConfirmInvalidCheckinType (0.00s)
+    --- PASS: TestCheckin/TestCheckinConfirmInvalidToken (0.00s)
+    --- PASS: TestCheckin/TestCheckinConfirmSuccess (0.00s)
+    --- PASS: TestCheckin/TestCheckinVerifyGrpcErr (0.00s)
+    --- PASS: TestCheckin/TestCheckinVerifyInternalError (0.00s)
+    --- PASS: TestCheckin/TestCheckinVerifySuccess (0.00s)
+PASS
+coverage: 3.0% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/checkin	0.383s	coverage: 3.0% of statements in ./src/app/...
+=== RUN   TestEStampService
+=== RUN   TestEStampService/TestFindByIdInternal
+{"level":"error","error":"rpc error: code = Internal desc = Internal Server Error","service":"checkin","module":"find_by_id","time":"2022-08-02T04:26:35+07:00","message":"Unhandled error"}
+=== RUN   TestEStampService/TestFindByIdNotFound
+=== RUN   TestEStampService/TestFindByIdSuccess
+=== RUN   TestEStampService/TestFindByIdUnavailable
+{"level":"error","error":"rpc error: code = Unavailable desc = Service is down","service":"checkin","module":"find_by_id","time":"2022-08-02T04:26:35+07:00","message":"Service is down"}
+--- PASS: TestEStampService (0.01s)
+    --- PASS: TestEStampService/TestFindByIdInternal (0.00s)
+    --- PASS: TestEStampService/TestFindByIdNotFound (0.00s)
+    --- PASS: TestEStampService/TestFindByIdSuccess (0.00s)
+    --- PASS: TestEStampService/TestFindByIdUnavailable (0.00s)
+PASS
+coverage: 1.5% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/estamp	0.293s	coverage: 1.5% of statements in ./src/app/...
+=== RUN   TestFileService
+=== RUN   TestFileService/TestUploadFailed
+{"level":"error","error":"Cannot connect to service","service":"file","module":"upload","time":"2022-08-02T04:26:36+07:00","message":"Error while connecting to service"}
+=== RUN   TestFileService/TestUploadSuccess
+--- PASS: TestFileService (0.00s)
+    --- PASS: TestFileService/TestUploadFailed (0.00s)
+    --- PASS: TestFileService/TestUploadSuccess (0.00s)
+PASS
+coverage: 1.1% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/file	0.788s	coverage: 1.1% of statements in ./src/app/...
+=== RUN   TestGroupService
+=== RUN   TestGroupService/TestDeleteMemberForbidden
+{"level":"error","error":"rpc error: code = PermissionDenied desc = Not allowed","service":"group","module":"delete member","user_id":"407e2151a8ab401abdf78b34c9e7e79c","time":"2022-08-02T04:26:40+07:00","message":"Not allowed"}
+=== RUN   TestGroupService/TestDeleteMemberGrpcErr
+{"level":"error","error":"Service is down","service":"group","module":"delete member","user_id":"5aa2db23408940c2ba67f2df0cc038b9","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestDeleteMemberInvalidId
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Invalid user id","service":"group","module":"delete member","user_id":"b0e4ecc9ca974b60b390ac5b09704344","time":"2022-08-02T04:26:40+07:00","message":"Invalid user id"}
+=== RUN   TestGroupService/TestDeleteMemberNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"delete member","user_id":"5bedcddd4bc444b181b92fec12128184","time":"2022-08-02T04:26:40+07:00","message":"Not found"}
+=== RUN   TestGroupService/TestDeleteMemberSuccess
+{"level":"info","service":"group","module":"delete member","user_id":"cdf6c7081e094b2c836618baebb799c7","time":"2022-08-02T04:26:40+07:00","message":"Delete member success"}
+=== RUN   TestGroupService/TestFindByTokenGrpcErr
+{"level":"error","error":"Server is down","service":"group","module":"find by token","token":"dolores","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestFindByTokenNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"find by token","token":"rerum","time":"2022-08-02T04:26:40+07:00","message":"Not found group"}
+=== RUN   TestGroupService/TestFindByTokenSuccess
+{"level":"info","service":"group","module":"find by token","token":"cupiditate","time":"2022-08-02T04:26:40+07:00","message":"Find group success"}
+=== RUN   TestGroupService/TestFindOneGrpcErr
+{"level":"error","error":"Service is down","service":"group","module":"find one","user_id":"c743ed86dcf64b5e99fd49737e20cff1","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestFindOneInvalidId
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Invalid user id","service":"group","module":"find one","user_id":"abc","time":"2022-08-02T04:26:40+07:00","message":"Invalid user id"}
+=== RUN   TestGroupService/TestFindOneNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"find one","user_id":"8084fe437b4f4d39a222a93a1818ce60","time":"2022-08-02T04:26:40+07:00","message":"Not found"}
+=== RUN   TestGroupService/TestFindOneSuccess
+{"level":"info","service":"group","module":"find one","user_id":"b70a715dc53444199a9a5db2e949e2c0","time":"2022-08-02T04:26:40+07:00","message":"Find group success"}
+=== RUN   TestGroupService/TestJoinForbidden
+{"level":"error","error":"rpc error: code = PermissionDenied desc = Not allowed","service":"group","module":"join","user_id":"4293c95063d049fa85c0978f7a5dd14a","time":"2022-08-02T04:26:40+07:00","message":"Not allowed"}
+=== RUN   TestGroupService/TestJoinGrpcErr
+{"level":"error","error":"Service is down","service":"group","module":"join","user_id":"942b784209414315840f26326ca201c4","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestJoinInvalidId
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Invalid user id","service":"group","module":"join","user_id":"abc","time":"2022-08-02T04:26:40+07:00","message":"Invalid user id"}
+=== RUN   TestGroupService/TestJoinNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"join","user_id":"1477eeb0f5d2426b9b03286a81adab1f","time":"2022-08-02T04:26:40+07:00","message":"Not found"}
+=== RUN   TestGroupService/TestJoinSuccess
+{"level":"info","service":"group","module":"join","user_id":"b7076e058092473486d68a3cc0ac03c2","time":"2022-08-02T04:26:40+07:00","message":"Join group success"}
+=== RUN   TestGroupService/TestLeaveForbidden
+{"level":"error","error":"rpc error: code = PermissionDenied desc = Not allowed","service":"group","module":"leave","user_id":"debb470280f14767b0e8cd486dd00cad","time":"2022-08-02T04:26:40+07:00","message":"Not allowed"}
+=== RUN   TestGroupService/TestLeaveGrpcErr
+{"level":"error","error":"Service is down","service":"group","module":"delete","user_id":"9b6a054997a2445db164247b22f9e1ed","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestLeaveInternalErr
+{"level":"error","error":"rpc error: code = Internal desc = Fail to create group","service":"group","module":"leave","user_id":"27c02d9115094c778e26a68481d390cf","time":"2022-08-02T04:26:40+07:00","message":"Fail to create group"}
+=== RUN   TestGroupService/TestLeaveInvalidId
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Invalid user id","service":"group","module":"leave","user_id":"abc","time":"2022-08-02T04:26:40+07:00","message":"Invalid user id"}
+=== RUN   TestGroupService/TestLeaveNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"leave","user_id":"31726a248d5a4e0d8867aad17b175bcc","time":"2022-08-02T04:26:40+07:00","message":"Not found"}
+=== RUN   TestGroupService/TestLeaveSuccess
+{"level":"info","service":"group","module":"leave","user_id":"32173f9787dd409bbe7e6a6e80f68ba8","time":"2022-08-02T04:26:40+07:00","message":"Leave group success"}
+=== RUN   TestGroupService/TestUpdateGrpcErr
+{"level":"error","error":"Service is down","service":"group","module":"update","user_id":"2940e82485d1485683210a6baf559d96","time":"2022-08-02T04:26:40+07:00","message":"Error while connecting to service"}
+=== RUN   TestGroupService/TestUpdateInvalidId
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Invalid user id","service":"group","module":"update","user_id":"abc","time":"2022-08-02T04:26:40+07:00","message":"Invalid user id"}
+=== RUN   TestGroupService/TestUpdateNotFound
+{"level":"error","error":"rpc error: code = NotFound desc = Group not found","service":"group","module":"update","user_id":"cee5ed4b8e344f06bcecdb2fd2b86ec2","time":"2022-08-02T04:26:40+07:00","message":"Not found"}
+=== RUN   TestGroupService/TestUpdateSelectBaanForbbidenInput
+{"level":"error","error":"rpc error: code = PermissionDenied desc = forbidden action","service":"group","module":"leave","user_id":"359d817baa3243e083a4da73dd608085","time":"2022-08-02T04:26:40+07:00","message":"invalid baan ids"}
+=== RUN   TestGroupService/TestUpdateSelectBaanInternalServiceErr
+{"level":"error","error":"rpc error: code = Internal desc = Something wrong","service":"group","module":"leave","user_id":"0f60e51773bd47c2a5041f072b4ce607","time":"2022-08-02T04:26:40+07:00","message":"Internal error in backend"}
+=== RUN   TestGroupService/TestUpdateSelectBaanInvalidInput
+{"level":"error","error":"rpc error: code = InvalidArgument desc = Duplicated baan","service":"group","module":"leave","user_id":"fe4b72e470a84c0dbeb98a6183397892","time":"2022-08-02T04:26:40+07:00","message":"invalid baan ids"}
+=== RUN   TestGroupService/TestUpdateSelectBaanSuccess
+=== RUN   TestGroupService/TestUpdateSuccess
+{"level":"info","service":"group","module":"update","user_id":"ba22a41a5df04dffa9185af7248f4354","time":"2022-08-02T04:26:40+07:00","message":"Update group success"}
+--- PASS: TestGroupService (0.01s)
+    --- PASS: TestGroupService/TestDeleteMemberForbidden (0.00s)
+    --- PASS: TestGroupService/TestDeleteMemberGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestDeleteMemberInvalidId (0.00s)
+    --- PASS: TestGroupService/TestDeleteMemberNotFound (0.00s)
+    --- PASS: TestGroupService/TestDeleteMemberSuccess (0.00s)
+    --- PASS: TestGroupService/TestFindByTokenGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestFindByTokenNotFound (0.00s)
+    --- PASS: TestGroupService/TestFindByTokenSuccess (0.00s)
+    --- PASS: TestGroupService/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestFindOneInvalidId (0.00s)
+    --- PASS: TestGroupService/TestFindOneNotFound (0.00s)
+    --- PASS: TestGroupService/TestFindOneSuccess (0.00s)
+    --- PASS: TestGroupService/TestJoinForbidden (0.00s)
+    --- PASS: TestGroupService/TestJoinGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestJoinInvalidId (0.00s)
+    --- PASS: TestGroupService/TestJoinNotFound (0.00s)
+    --- PASS: TestGroupService/TestJoinSuccess (0.00s)
+    --- PASS: TestGroupService/TestLeaveForbidden (0.00s)
+    --- PASS: TestGroupService/TestLeaveGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestLeaveInternalErr (0.00s)
+    --- PASS: TestGroupService/TestLeaveInvalidId (0.00s)
+    --- PASS: TestGroupService/TestLeaveNotFound (0.00s)
+    --- PASS: TestGroupService/TestLeaveSuccess (0.00s)
+    --- PASS: TestGroupService/TestUpdateGrpcErr (0.00s)
+    --- PASS: TestGroupService/TestUpdateInvalidId (0.00s)
+    --- PASS: TestGroupService/TestUpdateNotFound (0.00s)
+    --- PASS: TestGroupService/TestUpdateSelectBaanForbbidenInput (0.00s)
+    --- PASS: TestGroupService/TestUpdateSelectBaanInternalServiceErr (0.00s)
+    --- PASS: TestGroupService/TestUpdateSelectBaanInvalidInput (0.00s)
+    --- PASS: TestGroupService/TestUpdateSelectBaanSuccess (0.00s)
+    --- PASS: TestGroupService/TestUpdateSuccess (0.00s)
+PASS
+coverage: 12.7% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/group	0.188s	coverage: 12.7% of statements in ./src/app/...
+=== RUN   TestUserService
+=== RUN   TestUserService/TestConfirmEstampInternal
+{"level":"error","error":"rpc error: code = Internal desc = Internal Server Error","service":"checkin","module":"confirm_estamp","time":"2022-08-02T04:26:39+07:00","message":"Unhandled error"}
+=== RUN   TestUserService/TestConfirmEstampNotFound
+=== RUN   TestUserService/TestConfirmEstampSuccess
+=== RUN   TestUserService/TestConfirmEstampUnavailable
+{"level":"error","error":"rpc error: code = Unavailable desc = Service is down","service":"checkin","module":"confirm_estamp","time":"2022-08-02T04:26:39+07:00","message":"Service is down"}
+=== RUN   TestUserService/TestCreateGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"create","time":"2022-08-02T04:26:39+07:00","message":"Error while connecting to service"}
+=== RUN   TestUserService/TestCreateOrUpdateGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"create and update","time":"2022-08-02T04:26:39+07:00","message":"Error while connecting to service"}
+=== RUN   TestUserService/TestCreateOrUpdateSuccess
+=== RUN   TestUserService/TestCreateSuccess
+=== RUN   TestUserService/TestDeleteGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"delete","time":"2022-08-02T04:26:39+07:00","message":"Error while connecting to service"}
+=== RUN   TestUserService/TestDeleteNotFound
+=== RUN   TestUserService/TestDeleteSuccess
+=== RUN   TestUserService/TestFindOneGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"findOne","time":"2022-08-02T04:26:39+07:00","message":"Error while connecting to service"}
+=== RUN   TestUserService/TestFindOneNotFound
+=== RUN   TestUserService/TestFindOneSuccess
+=== RUN   TestUserService/TestGetUserEstampInternal
+{"level":"error","error":"rpc error: code = Internal desc = Internal Server Error","service":"checkin","module":"find_user_estamp","time":"2022-08-02T04:26:39+07:00","message":"Unhandled error"}
+=== RUN   TestUserService/TestGetUserEstampNotFound
+=== RUN   TestUserService/TestGetUserEstampSuccess
+=== RUN   TestUserService/TestGetUserEstampUnavailable
+{"level":"error","error":"rpc error: code = Unavailable desc = Service is down","service":"checkin","module":"find_user_estamp","time":"2022-08-02T04:26:39+07:00","message":"Service is down"}
+=== RUN   TestUserService/TestUpdateGrpcErr
+{"level":"error","error":"Service is down","service":"user","module":"update","time":"2022-08-02T04:26:39+07:00","message":"Error while connecting to service"}
+=== RUN   TestUserService/TestUpdateNotFound
+=== RUN   TestUserService/TestUpdateSuccess
+=== RUN   TestUserService/TestVerifyFailed
+{"level":"info","service":"user","module":"verify","student_id":"laudantium","time":"2022-08-02T04:26:39+07:00","message":"Trying to verify the user"}
+=== RUN   TestUserService/TestVerifySuccess
+{"level":"info","service":"user","module":"verify","student_id":"asperiores","time":"2022-08-02T04:26:39+07:00","message":"Trying to verify the user"}
+{"level":"info","service":"user","module":"verify","student_id":"asperiores","time":"2022-08-02T04:26:39+07:00","message":"Verified the user"}
+--- PASS: TestUserService (0.00s)
+    --- PASS: TestUserService/TestConfirmEstampInternal (0.00s)
+    --- PASS: TestUserService/TestConfirmEstampNotFound (0.00s)
+    --- PASS: TestUserService/TestConfirmEstampSuccess (0.00s)
+    --- PASS: TestUserService/TestConfirmEstampUnavailable (0.00s)
+    --- PASS: TestUserService/TestCreateGrpcErr (0.00s)
+    --- PASS: TestUserService/TestCreateOrUpdateGrpcErr (0.00s)
+    --- PASS: TestUserService/TestCreateOrUpdateSuccess (0.00s)
+    --- PASS: TestUserService/TestCreateSuccess (0.00s)
+    --- PASS: TestUserService/TestDeleteGrpcErr (0.00s)
+    --- PASS: TestUserService/TestDeleteNotFound (0.00s)
+    --- PASS: TestUserService/TestDeleteSuccess (0.00s)
+    --- PASS: TestUserService/TestFindOneGrpcErr (0.00s)
+    --- PASS: TestUserService/TestFindOneNotFound (0.00s)
+    --- PASS: TestUserService/TestFindOneSuccess (0.00s)
+    --- PASS: TestUserService/TestGetUserEstampInternal (0.00s)
+    --- PASS: TestUserService/TestGetUserEstampNotFound (0.00s)
+    --- PASS: TestUserService/TestGetUserEstampSuccess (0.00s)
+    --- PASS: TestUserService/TestGetUserEstampUnavailable (0.00s)
+    --- PASS: TestUserService/TestUpdateGrpcErr (0.00s)
+    --- PASS: TestUserService/TestUpdateNotFound (0.00s)
+    --- PASS: TestUserService/TestUpdateSuccess (0.00s)
+    --- PASS: TestUserService/TestVerifyFailed (0.00s)
+    --- PASS: TestUserService/TestVerifySuccess (0.00s)
+PASS
+coverage: 9.6% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/user	0.169s	coverage: 9.6% of statements in ./src/app/...
+=== RUN   TestService
+=== RUN   TestService/TestVerifyGrpcError
+{"level":"error","error":{"status_code":503,"message":"Service is down","data":null},"service":"vaccine","module":"verify","user_id":"2ffb39a40b334706a686bc002bd17e1f","time":"2022-08-02T04:26:39+07:00","message":"Error while verifying the user"}
+=== RUN   TestService/TestVerifyInvalidQR
+{"level":"error","error":"Invalid QR","service":"vaccine","module":"verify","time":"2022-08-02T04:26:39+07:00","message":"Cannot verify the QR code"}
+=== RUN   TestService/TestVerifyNotFound
+{"level":"error","error":{"status_code":404,"message":"User not found","data":null},"service":"vaccine","module":"verify","time":"2022-08-02T04:26:39+07:00","message":"Error while update the user status"}
+=== RUN   TestService/TestVerifySuccess
+{"level":"info","service":"vaccine","module":"verify","student_id":"quia","time":"2022-08-02T04:26:39+07:00","message":"Verified the vaccine cert"}
+--- PASS: TestService (0.00s)
+    --- PASS: TestService/TestVerifyGrpcError (0.00s)
+    --- PASS: TestService/TestVerifyInvalidQR (0.00s)
+    --- PASS: TestService/TestVerifyNotFound (0.00s)
+    --- PASS: TestService/TestVerifySuccess (0.00s)
+PASS
+coverage: 1.9% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/service/vaccine	0.178s	coverage: 1.9% of statements in ./src/app/...
+=== RUN   TestUtil
+=== RUN   TestUtil/TestFindUUIDFromString
+=== RUN   TestUtil/TestFindUUIDFromStringNotFound
+=== RUN   TestUtil/TestFormatPathWithID
+=== RUN   TestUtil/TestGetIDFromPath
+=== RUN   TestUtil/TestGetIntFromStr
+=== RUN   TestUtil/TestIsExistedFalse
+=== RUN   TestUtil/TestIsExistedTrue
+=== RUN   TestUtil/TestMergeStringSlice
+--- PASS: TestUtil (0.00s)
+    --- PASS: TestUtil/TestFindUUIDFromString (0.00s)
+    --- PASS: TestUtil/TestFindUUIDFromStringNotFound (0.00s)
+    --- PASS: TestUtil/TestFormatPathWithID (0.00s)
+    --- PASS: TestUtil/TestGetIDFromPath (0.00s)
+    --- PASS: TestUtil/TestGetIntFromStr (0.00s)
+    --- PASS: TestUtil/TestIsExistedFalse (0.00s)
+    --- PASS: TestUtil/TestIsExistedTrue (0.00s)
+    --- PASS: TestUtil/TestMergeStringSlice (0.00s)
+PASS
+coverage: 2.7% of statements in ./src/app/...
+ok  	github.com/isd-sgcu/rnkm65-gateway/src/app/utils	0.190s	coverage: 2.7% of statements in ./src/app/...
+?   	github.com/isd-sgcu/rnkm65-gateway/src/app/validator	[no test files]
+FAIL
