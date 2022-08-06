@@ -35,7 +35,7 @@ type IEstampService interface {
 	FindAllEventWithType(string) (*proto.FindAllEventWithTypeResponse, *dto.ResponseErr)
 }
 
-// Get detail of event using event id
+// FindEventByID Get detail of event using event id
 // @Summary Get event detail
 // @Description Get detail of event using event id
 // @Param id path string true "id"
@@ -67,7 +67,7 @@ func (h *Handler) FindEventByID(ctx IContext) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-// verify estamp for event day
+// VerifyEstamp to verified estamp for event day
 // @Summary check if estamp exist
 // @Description check if estamp exist
 // @Param event_id body dto.VerifyEstampRequest true "event id"
@@ -102,7 +102,7 @@ func (h *Handler) VerifyEstamp(ctx qr.IContext) {
 	return
 }
 
-// Get all event by type
+// FindAllEventWithType Get all event by type
 // @Summary Get all event by type
 // @Description Get get all event with the given type
 // @Param eventType query string true "id"
