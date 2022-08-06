@@ -29,7 +29,8 @@ type FiberRouter struct {
 }
 
 type IGuard interface {
-	Use(guard.IContext)
+	Validate(ctx guard.IContext)
+	CheckConfig(ctx guard.IContext)
 }
 
 func NewFiberRouter(authGuard IGuard, conf config.App) *FiberRouter {
@@ -39,9 +40,11 @@ func NewFiberRouter(authGuard IGuard, conf config.App) *FiberRouter {
 		BodyLimit:     conf.MaxFileSize * 1024 * 1024,
 	})
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
+	r.Use(
+		cors.New(cors.Config{
+			AllowOrigins: "*",
+		}),
+	)
 
 	if conf.Debug {
 		r.Use(logger.New(logger.Config{Next: func(c *fiber.Ctx) bool {
@@ -50,23 +53,35 @@ func NewFiberRouter(authGuard IGuard, conf config.App) *FiberRouter {
 		r.Get("/docs/*", swagger.HandlerDefault)
 	}
 
-	user := NewGroupRouteWithAuthMiddleware(r, "/user", authGuard.Use)
-	auth := NewGroupRouteWithAuthMiddleware(r, "/auth", authGuard.Use)
-	file := NewGroupRouteWithAuthMiddleware(r, "/file", authGuard.Use)
-	vaccine := NewGroupRouteWithAuthMiddleware(r, "/vaccine", authGuard.Use)
-	baan := NewGroupRouteWithAuthMiddleware(r, "/baan", authGuard.Use)
-	group := NewGroupRouteWithAuthMiddleware(r, "/group", authGuard.Use)
-	qr := NewGroupRouteWithAuthMiddleware(r, "/qr", authGuard.Use)
-	estamp := NewGroupRouteWithAuthMiddleware(r, "/estamp", authGuard.Use)
+	user := NewGroupRouteWithAuthMiddleware(r, "/user", authGuard.Validate, authGuard.CheckConfig)
+	auth := NewGroupRouteWithAuthMiddleware(r, "/auth", authGuard.Validate, authGuard.CheckConfig)
+	file := NewGroupRouteWithAuthMiddleware(r, "/file", authGuard.Validate, authGuard.CheckConfig)
+	vaccine := NewGroupRouteWithAuthMiddleware(r, "/vaccine", authGuard.Validate, authGuard.CheckConfig)
+	baan := NewGroupRouteWithAuthMiddleware(r, "/baan", authGuard.CheckConfig)
+	group := NewGroupRouteWithAuthMiddleware(r, "/group", authGuard.Validate, authGuard.CheckConfig)
+	qr := NewGroupRouteWithAuthMiddleware(r, "/qr", authGuard.Validate, authGuard.CheckConfig)
+	estamp := NewGroupRouteWithAuthMiddleware(r, "/estamp", authGuard.Validate, authGuard.CheckConfig)
 
 	return &FiberRouter{r, user, auth, file, group, vaccine, baan, qr, estamp}
 }
 
-func NewGroupRouteWithAuthMiddleware(r *fiber.App, path string, middleware func(ctx guard.IContext)) fiber.Router {
-	return r.Group(path, func(c *fiber.Ctx) error {
-		middleware(NewFiberCtx(c))
-		return nil
-	})
+func NewGroupRouteWithAuthMiddleware(r *fiber.App, path string, middlewares ...func(ctx guard.IContext)) fiber.Router {
+	mList := createMiddlewaresList(middlewares)
+	return r.Group(path, mList...)
+}
+
+func createMiddlewaresList(middlewares []func(ctx guard.IContext)) []func(ctx *fiber.Ctx) error {
+	var result []func(ctx *fiber.Ctx) error
+	for _, middleware := range middlewares {
+		m := func(c *fiber.Ctx) error {
+			middleware(NewFiberCtx(c))
+			return nil
+		}
+
+		result = append(result, m)
+	}
+
+	return result
 }
 
 type FiberCtx struct {
@@ -128,8 +143,8 @@ func (c *FiberCtx) StoreValue(k string, v string) {
 	c.Locals(k, v)
 }
 
-func (c *FiberCtx) Next() {
-	c.Ctx.Next()
+func (c *FiberCtx) Next() error {
+	return c.Ctx.Next()
 }
 
 func (c *FiberCtx) Query(key string) string {
@@ -173,4 +188,8 @@ func (c *FiberCtx) GetFormData(key string) string {
 
 func (c *FiberCtx) Host() string {
 	return c.Ctx.Hostname()
+}
+
+func (c *FiberCtx) GetCTX() *fiber.Ctx {
+	return c.Ctx
 }

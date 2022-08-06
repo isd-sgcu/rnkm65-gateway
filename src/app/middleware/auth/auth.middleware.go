@@ -5,16 +5,16 @@ import (
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/handler/auth"
 	"github.com/isd-sgcu/rnkm65-gateway/src/app/utils"
 	"github.com/isd-sgcu/rnkm65-gateway/src/config"
-	phase "github.com/isd-sgcu/rnkm65-gateway/src/constant/auth"
 	"net/http"
 	"strings"
 )
 
 type Guard struct {
-	service    auth.IService
-	excludes   map[string]struct{}
-	conf       config.App
-	isValidate bool
+	service     auth.IService
+	excludes    map[string]struct{}
+	allowPhases map[string][]string
+	conf        config.App
+	isValidate  bool
 }
 
 type IContext interface {
@@ -23,37 +23,17 @@ type IContext interface {
 	Path() string
 	StoreValue(string, string)
 	JSON(int, interface{})
-	Next()
+	Next() error
 }
 
-func NewAuthGuard(s auth.IService, e map[string]struct{}, conf config.App) Guard {
+func NewAuthGuard(s auth.IService, e map[string]struct{}, allowPhase map[string][]string, conf config.App) Guard {
 	return Guard{
-		service:    s,
-		excludes:   e,
-		conf:       conf,
-		isValidate: true,
+		service:     s,
+		excludes:    e,
+		allowPhases: allowPhase,
+		conf:        conf,
+		isValidate:  true,
 	}
-}
-
-func (m *Guard) Use(ctx IContext) {
-	m.isValidate = true
-
-	m.Validate(ctx)
-
-	if !m.isValidate {
-		return
-	}
-
-	if !m.conf.Debug {
-		m.CheckConfig(ctx)
-
-		if !m.isValidate {
-			return
-		}
-	}
-
-	ctx.Next()
-
 }
 
 func (m *Guard) Validate(ctx IContext) {
@@ -113,7 +93,7 @@ func (m *Guard) CheckConfig(ctx IContext) {
 		return
 	}
 
-	phses, ok := phase.MapPath2Phase[path]
+	phses, ok := m.allowPhases[path]
 	if !ok {
 		ctx.Next()
 		return
