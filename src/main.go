@@ -156,7 +156,7 @@ func main() {
 	estampHdr := eHdr.NewHandler(estampSrv, v)
 
 	ciHandler := ciHdr.NewHandler(checkinSrv, v)
-	authGuard := guard.NewAuthGuard(athSrv, auth.ExcludePath, conf.App)
+	authGuard := guard.NewAuthGuard(athSrv, auth.ExcludePath, auth.MapPath2Phase, conf.App)
 
 	r := router.NewFiberRouter(&authGuard, conf.App)
 

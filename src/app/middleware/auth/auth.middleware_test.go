@@ -16,6 +16,7 @@ type AuthGuardTest struct {
 	suite.Suite
 	conf            config.App
 	ExcludePath     map[string]struct{}
+	AllowPhases     map[string][]string
 	UserId          string
 	Token           string
 	UnauthorizedErr *dto.ResponseErr
@@ -54,6 +55,12 @@ func (u *AuthGuardTest) SetupTest() {
 		"POST /exclude/:id": {},
 	}
 
+	u.AllowPhases = map[string][]string{
+		"GET /allow1": {"phase1"},
+		"GET /allow2": {"phase1", "phase2"},
+		"GET /allow3": {"phase2"},
+	}
+
 	u.conf = config.App{
 		Port:        3000,
 		Debug:       true,
@@ -78,9 +85,9 @@ func (u *AuthGuardTest) TestValidateSuccess() {
 	}, nil)
 	c.On("StoreValue", "UserId", u.UserId)
 	c.On("StoreValue", "Role", role.USER)
-	c.On("Next")
+	c.On("Next").Return(nil)
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	actual := c.Header["UserId"]
@@ -96,9 +103,9 @@ func (u *AuthGuardTest) TestValidateSkippedFromExcludePath() {
 	c.On("Method").Return("POST")
 	c.On("Path").Return("/exclude")
 	c.On("Token").Return("")
-	c.On("Next")
+	c.On("Next").Return(nil)
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	c.AssertNumberOfCalls(u.T(), "Next", 1)
@@ -112,9 +119,9 @@ func (u *AuthGuardTest) TestValidateSkippedFromExcludePathWithID() {
 	c.On("Method").Return("POST")
 	c.On("Path").Return("/exclude/1")
 	c.On("Token").Return("")
-	c.On("Next")
+	c.On("Next").Return(nil)
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	c.AssertNumberOfCalls(u.T(), "Next", 1)
@@ -132,7 +139,7 @@ func (u *AuthGuardTest) TestValidateFailed() {
 	c.On("Token").Return(u.Token)
 	srv.On("Validate", u.Token).Return(nil, u.UnauthorizedErr)
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	assert.Equal(u.T(), want, c.V)
@@ -149,7 +156,7 @@ func (u *AuthGuardTest) TestValidateTokenNotIncluded() {
 	c.On("Token").Return("")
 	srv.On("Validate")
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	assert.Equal(u.T(), want, c.V)
@@ -167,7 +174,7 @@ func (u *AuthGuardTest) TestValidateTokenGrpcErr() {
 	c.On("Token").Return(u.Token)
 	srv.On("Validate", u.Token).Return(nil, u.ServiceDownErr)
 
-	h := NewAuthGuard(srv, u.ExcludePath, u.conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, u.conf)
 	h.Validate(c)
 
 	assert.Equal(u.T(), want, c.V)
@@ -179,26 +186,23 @@ func testConfigSuccess(t *testing.T, u *AuthGuardTest, conf config.App, mth stri
 
 	c.On("Method").Return(mth)
 	c.On("Path").Return(pth)
-	c.On("Next")
+	c.On("Next").Return(nil)
 
-	h := NewAuthGuard(srv, u.ExcludePath, conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, conf)
 	h.CheckConfig(c)
 
 	c.AssertNumberOfCalls(t, "Next", 1)
 }
 
 func (u *AuthGuardTest) TestConfigSuccess() {
-	u.conf.Phase = "register"
-	testConfigSuccess(u.T(), u, u.conf, "GET", "/user")
-	testConfigSuccess(u.T(), u, u.conf, "PUT", "/user")
-	u.conf.Phase = "select"
-	testConfigSuccess(u.T(), u, u.conf, "GET", "/group/1")
-	testConfigSuccess(u.T(), u, u.conf, "DELETE", "/group/members/2")
-	testConfigSuccess(u.T(), u, u.conf, "DELETE", "/group/leave")
-	u.conf.Phase = "eventDay"
-	testConfigSuccess(u.T(), u, u.conf, "POST", "/qr/checkin/verify")
-	u.conf.Phase = "eStamp"
-	testConfigSuccess(u.T(), u, u.conf, "POST", "/qr/estamp/confirm")
+	u.conf.Phase = "phase1"
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/allow1")
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/allow2")
+	u.conf.Phase = "phase2"
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/allow2")
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/allow3")
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/")
+	testConfigSuccess(u.T(), u, u.conf, "GET", "/allowall")
 }
 
 func testConfigFail(t *testing.T, u *AuthGuardTest, conf config.App, mth string, pth string) {
@@ -209,22 +213,18 @@ func testConfigFail(t *testing.T, u *AuthGuardTest, conf config.App, mth string,
 
 	c.On("Method").Return(mth)
 	c.On("Path").Return(pth)
-	c.On("Next")
+	c.On("Next").Return(nil)
 
-	h := NewAuthGuard(srv, u.ExcludePath, conf)
+	h := NewAuthGuard(srv, u.ExcludePath, u.AllowPhases, conf)
 	h.CheckConfig(c)
 
 	assert.Equal(t, want, c.V)
+	assert.Equal(t, http.StatusForbidden, c.Status)
 }
 
 func (u *AuthGuardTest) TestConfigFail() {
-	u.conf.Phase = "register"
-	testConfigFail(u.T(), u, u.conf, "PUT", "/group")
-	u.conf.Phase = "select"
-	testConfigFail(u.T(), u, u.conf, "PUT", "/file/upload")
-	testConfigFail(u.T(), u, u.conf, "GET", "/estamp/1")
-	u.conf.Phase = "eventDay"
-	testConfigFail(u.T(), u, u.conf, "PUT", "/group")
-	u.conf.Phase = "emStamp"
-	testConfigFail(u.T(), u, u.conf, "PUT", "/group")
+	u.conf.Phase = "phase1"
+	testConfigFail(u.T(), u, u.conf, "GET", "/allow3")
+	u.conf.Phase = "phase2"
+	testConfigFail(u.T(), u, u.conf, "GET", "/allow1")
 }

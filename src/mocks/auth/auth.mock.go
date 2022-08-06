@@ -11,6 +11,7 @@ import (
 type ContextMock struct {
 	mock.Mock
 	V               interface{}
+	Status          int
 	Header          map[string]string
 	VerifyTicketDto *dto.VerifyTicket
 	RefreshTokenDto *dto.RedeemNewToken
@@ -29,8 +30,9 @@ func (c *ContextMock) Bind(v interface{}) error {
 	return args.Error(1)
 }
 
-func (c *ContextMock) JSON(_ int, v interface{}) {
+func (c *ContextMock) JSON(status int, v interface{}) {
 	c.V = v
+	c.Status = status
 }
 
 func (c *ContextMock) UserID() string {
@@ -63,10 +65,10 @@ func (c *ContextMock) Path() string {
 	return args.String(0)
 }
 
-func (c *ContextMock) Next() {
-	_ = c.Called()
+func (c *ContextMock) Next() error {
+	args := c.Called()
 
-	return
+	return args.Error(0)
 }
 
 type ClientMock struct {
